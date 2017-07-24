@@ -1,0 +1,20 @@
+apply plugin: 'antlr'
+
+repositories {
+    jcenter()
+}
+
+def antlrVersion = "4.7"
+
+def antlrPackage = "io.yegair.semver.antlr"
+
+dependencies {
+    antlr "org.antlr:antlr4:${antlrVersion}"
+    compile "org.antlr:antlr4-runtime:${antlrVersion}"
+}
+
+generateGrammarSource {
+    maxHeapSize = "64m"
+    arguments += ['-visitor', '-package', antlrPackage]
+    outputDirectory = file("build/generated-src/antlr/main/${antlrPackage.replace(".", "/")}")
+}
