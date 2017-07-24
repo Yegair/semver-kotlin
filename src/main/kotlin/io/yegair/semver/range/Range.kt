@@ -38,4 +38,13 @@ interface Range {
      */
     fun satisfiedBy(version: Version): Boolean
 
+    companion object {
+
+        /**
+         * Parses the given expression into a [Range]
+         */
+        fun parse(expression:String): Range {
+            return ANTLRRangeParser().parse(expression)
+        }
+    }
 }

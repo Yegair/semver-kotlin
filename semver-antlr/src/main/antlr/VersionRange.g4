@@ -9,11 +9,11 @@ LOGICAL_OR
     ;
 
 singleRange
-    : hyphenRange
+    : boundedRange
     | simpleRange (' ' simpleRange)*
     ;
 
-hyphenRange
+boundedRange
     : fullVersion ' - ' fullVersion
     ;
 

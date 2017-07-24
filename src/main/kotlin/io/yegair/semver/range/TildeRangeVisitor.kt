@@ -1,6 +1,7 @@
 package io.yegair.semver.range
 
-import io.yegair.semver.Version
+import io.yegair.semver.antlr.VersionRangeBaseVisitor
+import io.yegair.semver.antlr.VersionRangeParser
 
 /*
  * MIT License
@@ -27,16 +28,21 @@ import io.yegair.semver.Version
  */
 
 /**
- * A version range that is composed of multiple version ranges.
- * A version satisfies this version range if it satisfies any of
- * the version ranges this range is composed of.
+ *
  *
  * @author Hauke Jaeger, hauke.jaeger@yegair.io
  */
-internal data class CompositeRange(private val ranges: Iterable<Range>) : Range {
+internal object TildeRangeVisitor: VersionRangeBaseVisitor<TildeRange>() {
 
-    override fun satisfiedBy(version: Version): Boolean {
-        return ranges.any { it.satisfiedBy(version) }
+    override fun visitTildeRange(ctx: VersionRangeParser.TildeRangeContext?): TildeRange {
+
+        if (ctx == null) {
+            throw IllegalStateException("[TildeRangeContext] must not be null")
+        }
+
+        val fullVersionCtx = ctx.fullVersion() ?: throw IllegalStateException("[fullVersion] must be present")
+
+        val version = fullVersionCtx.accept(FullVersionVisitor)
+        return TildeRange(version = version)
     }
-
 }

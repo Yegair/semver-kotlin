@@ -28,21 +28,32 @@ import io.yegair.semver.antlr.VersionRangeParser
  */
 
 /**
- *
+ * ANTLR visitor that creates an instance of [Range]
+ * when visiting a [VersionRangeParser.SingleRangeContext]
  *
  * @author Hauke Jaeger, hauke.jaeger@yegair.io
  */
-internal class SingleRangeVisitor: VersionRangeBaseVisitor<Range>() {
+internal object SingleRangeVisitor: VersionRangeBaseVisitor<Range>() {
 
-    override fun visitCaretRange(ctx: VersionRangeParser.CaretRangeContext?): Range {
+    override fun visitSingleRange(ctx: VersionRangeParser.SingleRangeContext?): Range {
 
         if (ctx == null) {
-            throw IllegalStateException("[ctx] must not be null")
+            throw IllegalStateException("[SingleRangeContext] must not be null")
         }
 
-        val fullVersionCtx = ctx.fullVersion() ?: throw IllegalStateException("[fullVersion] must not be null")
+        val boundedRangeCtx = ctx.boundedRange()
 
-        val version = fullVersionCtx.accept(FullVersionVisitor())
-        return CaretRange(version)
+        if (boundedRangeCtx != null) {
+            return boundedRangeCtx.accept(BoundedRangeVisitor)
+        } else {
+            val simpleRanges = ctx.simpleRange().map {
+                it.accept(SimpleRangeVisitor)
+            }
+
+            return when(simpleRanges.size) {
+                1 -> simpleRanges[0]
+                else -> AndRange(ranges = simpleRanges)
+            }
+        }
     }
 }

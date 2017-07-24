@@ -1,8 +1,6 @@
 package io.yegair.semver.range
 
 import io.yegair.semver.Version
-import io.yegair.semver.antlr.VersionRangeBaseVisitor
-import io.yegair.semver.antlr.VersionRangeParser
 
 /*
  * MIT License
@@ -29,29 +27,16 @@ import io.yegair.semver.antlr.VersionRangeParser
  */
 
 /**
- * ANTLR visitor that creates an instance of [Version]
- * when visiting a [VersionRangeParser.FullVersionContext]
+ * A range that is composed of multiple ranges. A version satisfies this range if
+ * it satisfies all of the ranges this range is composed of.
  *
  * @author Hauke Jaeger, hauke.jaeger@yegair.io
  */
-internal object FullVersionVisitor : VersionRangeBaseVisitor<Version>() {
+internal data class AndRange(private val ranges: List<Range>) : Range {
 
-    override fun visitFullVersion(ctx: VersionRangeParser.FullVersionContext?): Version {
+    constructor(vararg ranges: Range): this(listOf(*ranges))
 
-        if (ctx == null) {
-            throw IllegalStateException("[FullVersionContext] must not be null")
-        }
-
-        val major = ctx.major?.text?.toInt() ?: throw IllegalStateException("[major] version number must be present")
-        val minor = ctx.minor?.text?.toInt() ?: throw IllegalStateException("[minor] version number must be present")
-        val patch = ctx.patch?.text?.toInt() ?: throw IllegalStateException("[patch] version number must be present")
-
-        // TODO: parse prerelease and build
-
-        return Version(
-            major = major,
-            minor = minor,
-            patch = patch
-        )
+    override fun satisfiedBy(version: Version): Boolean {
+        return ranges.all { it.satisfiedBy(version) }
     }
 }

@@ -1,6 +1,5 @@
 package io.yegair.semver.range
 
-import io.yegair.semver.Version
 import io.yegair.semver.antlr.VersionRangeBaseVisitor
 import io.yegair.semver.antlr.VersionRangeParser
 
@@ -29,29 +28,25 @@ import io.yegair.semver.antlr.VersionRangeParser
  */
 
 /**
- * ANTLR visitor that creates an instance of [Version]
- * when visiting a [VersionRangeParser.FullVersionContext]
+ * ANTLR visitor that creates an instance of [Range]
+ * when visiting a [VersionRangeParser.BoundedRangeContext]
  *
  * @author Hauke Jaeger, hauke.jaeger@yegair.io
  */
-internal object FullVersionVisitor : VersionRangeBaseVisitor<Version>() {
+internal object BoundedRangeVisitor : VersionRangeBaseVisitor<Range>() {
 
-    override fun visitFullVersion(ctx: VersionRangeParser.FullVersionContext?): Version {
+    override fun visitBoundedRange(ctx: VersionRangeParser.BoundedRangeContext?): Range {
 
         if (ctx == null) {
-            throw IllegalStateException("[FullVersionContext] must not be null")
+            throw IllegalStateException("[BoundedRangeContext] must not be null")
         }
 
-        val major = ctx.major?.text?.toInt() ?: throw IllegalStateException("[major] version number must be present")
-        val minor = ctx.minor?.text?.toInt() ?: throw IllegalStateException("[minor] version number must be present")
-        val patch = ctx.patch?.text?.toInt() ?: throw IllegalStateException("[patch] version number must be present")
+        val lowerCtx = ctx.fullVersion(0) ?: throw IllegalStateException("lower bound [fullVersion] must be present")
+        val upperCtx = ctx.fullVersion(1) ?: throw IllegalStateException("upper bound [fullVersion] must be present")
 
-        // TODO: parse prerelease and build
+        val lower = lowerCtx.accept(FullVersionVisitor)
+        val upper = upperCtx.accept(FullVersionVisitor)
 
-        return Version(
-            major = major,
-            minor = minor,
-            patch = patch
-        )
+        return BoundedRange(lower = lower, upper = upper)
     }
 }

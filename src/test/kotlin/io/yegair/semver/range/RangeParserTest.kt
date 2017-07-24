@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test
  *
  * @author Hauke Jaeger, hauke.jaeger@yegair.io
  */
-internal class RangeFactoryTest {
+internal class RangeParserTest {
 
     @Nested
     inner class Parse {
@@ -22,14 +22,15 @@ internal class RangeFactoryTest {
             val expression = "^=1.2.4"
 
             // when
-            val range = ANTLRRangeParser().parse(expression)
+            val range = Range.parse(expression)
 
             // then
-            assertEquals(range, CompositeRange(
-                listOf(
+            assertEquals(
+                OrRange(
                     CaretRange(Version(1, 2, 4))
-                )
-            ))
+                ),
+                range
+            )
         }
     }
 }

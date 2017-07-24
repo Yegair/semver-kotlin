@@ -1,6 +1,5 @@
 package io.yegair.semver.range
 
-import io.yegair.semver.Version
 import io.yegair.semver.antlr.VersionRangeBaseVisitor
 import io.yegair.semver.antlr.VersionRangeParser
 
@@ -29,29 +28,20 @@ import io.yegair.semver.antlr.VersionRangeParser
  */
 
 /**
- * ANTLR visitor that creates an instance of [Version]
- * when visiting a [VersionRangeParser.FullVersionContext]
+ *
  *
  * @author Hauke Jaeger, hauke.jaeger@yegair.io
  */
-internal object FullVersionVisitor : VersionRangeBaseVisitor<Version>() {
+internal object PlainRangeVisitor : VersionRangeBaseVisitor<Range>() {
 
-    override fun visitFullVersion(ctx: VersionRangeParser.FullVersionContext?): Version {
+    override fun visitPlainRange(ctx: VersionRangeParser.PlainRangeContext?): Range {
 
         if (ctx == null) {
-            throw IllegalStateException("[FullVersionContext] must not be null")
+            throw IllegalStateException("[PlainRangeContext] must not be null")
         }
 
-        val major = ctx.major?.text?.toInt() ?: throw IllegalStateException("[major] version number must be present")
-        val minor = ctx.minor?.text?.toInt() ?: throw IllegalStateException("[minor] version number must be present")
-        val patch = ctx.patch?.text?.toInt() ?: throw IllegalStateException("[patch] version number must be present")
+        val version = ctx.wildcardVersion().accept(WildcardVersionVisitor)
 
-        // TODO: parse prerelease and build
-
-        return Version(
-            major = major,
-            minor = minor,
-            patch = patch
-        )
+        return PlainRange(version)
     }
 }

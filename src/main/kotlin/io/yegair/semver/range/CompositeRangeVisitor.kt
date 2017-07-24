@@ -32,7 +32,7 @@ import io.yegair.semver.antlr.VersionRangeParser
  *
  * @author Hauke Jaeger, hauke.jaeger@yegair.io
  */
-internal class CompositeRangeVisitor: VersionRangeBaseVisitor<Range>() {
+internal object CompositeRangeVisitor: VersionRangeBaseVisitor<Range>() {
 
     override fun visitCompositeRange(ctx: VersionRangeParser.CompositeRangeContext?): Range {
 
@@ -41,9 +41,9 @@ internal class CompositeRangeVisitor: VersionRangeBaseVisitor<Range>() {
         }
 
         val ranges = ctx.singleRange().map {
-            it.accept(SingleRangeVisitor())
+            it.accept(SingleRangeVisitor)
         }
 
-        return CompositeRange(ranges)
+        return OrRange(ranges)
     }
 }

@@ -30,7 +30,7 @@ import org.antlr.v4.runtime.CommonTokenStream
  */
 
 /**
- * Parses version range expressions
+ * Parses range expressions using ANTLR.
  *
  * @author Hauke Jaeger, hauke.jaeger@yegair.io
  */
@@ -43,6 +43,6 @@ internal class ANTLRRangeParser : RangeParser {
         val tokenStream = CommonTokenStream(lexer)
         val parser = VersionRangeParser(tokenStream)
         val context = parser.compositeRange()
-        return context.accept(CompositeRangeVisitor())
+        return context.accept(CompositeRangeVisitor)
     }
 }

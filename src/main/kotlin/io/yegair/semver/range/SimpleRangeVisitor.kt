@@ -1,6 +1,5 @@
 package io.yegair.semver.range
 
-import io.yegair.semver.Version
 import io.yegair.semver.antlr.VersionRangeBaseVisitor
 import io.yegair.semver.antlr.VersionRangeParser
 
@@ -29,29 +28,46 @@ import io.yegair.semver.antlr.VersionRangeParser
  */
 
 /**
- * ANTLR visitor that creates an instance of [Version]
- * when visiting a [VersionRangeParser.FullVersionContext]
+ * ANTLR visitor that creates an instance of [Range]
+ * when visiting a [VersionRangeParser.SimpleRangeContext]
  *
  * @author Hauke Jaeger, hauke.jaeger@yegair.io
  */
-internal object FullVersionVisitor : VersionRangeBaseVisitor<Version>() {
+object SimpleRangeVisitor : VersionRangeBaseVisitor<Range>() {
 
-    override fun visitFullVersion(ctx: VersionRangeParser.FullVersionContext?): Version {
+    override fun visitSimpleRange(ctx: VersionRangeParser.SimpleRangeContext?): Range {
 
         if (ctx == null) {
-            throw IllegalStateException("[FullVersionContext] must not be null")
+            throw IllegalStateException("[PrimitiveRangeContext] must not be null")
         }
 
-        val major = ctx.major?.text?.toInt() ?: throw IllegalStateException("[major] version number must be present")
-        val minor = ctx.minor?.text?.toInt() ?: throw IllegalStateException("[minor] version number must be present")
-        val patch = ctx.patch?.text?.toInt() ?: throw IllegalStateException("[patch] version number must be present")
+        val primitiveRangeCtx = ctx.primitiveRange()
+        if (primitiveRangeCtx != null) {
+            return primitiveRangeCtx.accept(PrimitiveRangeVisitor)
+        }
 
-        // TODO: parse prerelease and build
+        val plainRangeCtx = ctx.plainRange()
+        if (plainRangeCtx != null) {
+            return plainRangeCtx.accept(PlainRangeVisitor)
+        }
 
-        return Version(
-            major = major,
-            minor = minor,
-            patch = patch
-        )
+        val tildeRangeCtx = ctx.tildeRange()
+        if (tildeRangeCtx != null) {
+            return tildeRangeCtx.accept(TildeRangeVisitor)
+        }
+
+        return ctx.caretRange().accept(CaretRangeVisitor)
+    }
+
+    override fun visitCaretRange(ctx: VersionRangeParser.CaretRangeContext?): Range {
+
+        if (ctx == null) {
+            throw IllegalStateException("[CaretRangeContext] must not be null")
+        }
+
+        val fullVersionCtx = ctx.fullVersion() ?: throw IllegalStateException("[fullVersion] must be present")
+
+        val version = fullVersionCtx.accept(FullVersionVisitor)
+        return CaretRange(version = version)
     }
 }
