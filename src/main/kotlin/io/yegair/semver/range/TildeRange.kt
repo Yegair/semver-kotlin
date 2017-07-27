@@ -1,6 +1,7 @@
 package io.yegair.semver.range
 
-import io.yegair.semver.Version
+import io.yegair.semver.version.SemanticVersion
+import io.yegair.semver.version.Version
 
 /*
  * MIT License
@@ -31,10 +32,4 @@ import io.yegair.semver.Version
  *
  * @author Hauke Jaeger, hauke.jaeger@yegair.io
  */
-internal data class TildeRange(private val version: Version) : Range {
-
-    override fun satisfiedBy(version: Version): Boolean {
-        // TODO: implement tilde version range semantics
-        return version >= this.version
-    }
-}
+internal class TildeRange(version: Version) : SimpleRange(version.floor(), version.ceil())

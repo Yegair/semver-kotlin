@@ -1,7 +1,9 @@
-package io.yegair.semver.range
+package io.yegair.semver.antlr
 
+import io.yegair.semver.version.NoBuild
+import io.yegair.semver.version.NoPrerelease
 import io.yegair.semver.version.SemanticVersion
-import io.yegair.semver.version.Version
+import io.yegair.semver.version.VersionNumber
 
 /*
  * MIT License
@@ -28,8 +30,27 @@ import io.yegair.semver.version.Version
  */
 
 /**
- * Represents a caret version range like `^1.3.7`.
+ * ANTLR visitor that creates an instance of [SemanticVersion]
  *
  * @author Hauke Jaeger, hauke.jaeger@yegair.io
  */
-internal class CaretRange(version: Version) : SimpleRange(version, version.nextBreakingChange())
+internal object FullVersionVisitor : VisitorSupport<SemanticVersion>() {
+
+    override fun visitFullVersion(ctx: FullVersionCtx): SemanticVersion {
+
+        val major = ctx.major?.text?.toInt()
+        val minor = ctx.minor?.text?.toInt()
+        val patch = ctx.patch?.text?.toInt()
+
+        val prerelease = ctx.prerelease()?.accept(PrereleaseVisitor)
+        val build = ctx.build()?.accept(BuildVisitor)
+
+        return SemanticVersion(
+            major = VersionNumber.of(major),
+            minor = VersionNumber.of(minor),
+            patch = VersionNumber.of(patch),
+            prerelease = prerelease ?: NoPrerelease,
+            build = build ?: NoBuild
+        )
+    }
+}

@@ -1,7 +1,4 @@
-package io.yegair.semver.range
-
-import io.yegair.semver.version.SemanticVersion
-import io.yegair.semver.version.Version
+package io.yegair.semver.version
 
 /*
  * MIT License
@@ -28,26 +25,60 @@ import io.yegair.semver.version.Version
  */
 
 /**
- * Represents a version range like `2.5.0 - 2.6.9`.
+ * Name part of a [Prerelease]
  *
  * @author Hauke Jaeger, hauke.jaeger@yegair.io
  */
-internal data class BoundedRange(private val lower: Version,
-                                 private val upper: Version) : Range {
+sealed class PrereleaseName: Comparable<PrereleaseName> {
 
-    override fun satisfiedBy(version: Version): Boolean {
-        return version in lower..upper
+    companion object {
+
+        fun of(value: String?) : PrereleaseName {
+            return when (value?.trim()) {
+                null -> NoPrereleaseName
+                "" -> NoPrereleaseName
+                else -> StringPrereleaseName(value)
+            }
+        }
+    }
+}
+
+class StringPrereleaseName(private val value: String) : PrereleaseName() {
+
+    override fun compareTo(other: PrereleaseName): Int {
+        return when (other) {
+            is StringPrereleaseName -> value.compareTo(other.value)
+            is NoPrereleaseName -> -1
+        }
     }
 
-    override fun gtr(version: Version): Boolean {
-        return version > upper
+    override fun equals(other: Any?): Boolean {
+        return when {
+            other === this -> true
+            other !is StringPrereleaseName -> false
+            else -> value == other.value
+        }
     }
 
-    override fun ltr(version: Version): Boolean {
-        return version < lower
+    override fun hashCode(): Int {
+        return value.hashCode()
     }
 
     override fun toString(): String {
-        return "[$lower .. $upper]"
+        return value
+    }
+}
+
+object NoPrereleaseName : PrereleaseName() {
+
+    override fun compareTo(other: PrereleaseName): Int {
+        return when (other) {
+            is NoPrereleaseName -> 0
+            else -> -other.compareTo(this)
+        }
+    }
+
+    override fun toString(): String {
+        return ""
     }
 }

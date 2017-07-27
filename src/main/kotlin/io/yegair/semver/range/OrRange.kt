@@ -1,6 +1,7 @@
 package io.yegair.semver.range
 
-import io.yegair.semver.Version
+import io.yegair.semver.version.SemanticVersion
+import io.yegair.semver.version.Version
 
 /*
  * MIT License
@@ -32,12 +33,17 @@ import io.yegair.semver.Version
  *
  * @author Hauke Jaeger, hauke.jaeger@yegair.io
  */
-internal data class OrRange(private val ranges: Iterable<Range>) : Range {
-
-    constructor(vararg ranges: Range): this(listOf(*ranges))
+internal data class OrRange(private val ranges: List<Range>) : Range {
 
     override fun satisfiedBy(version: Version): Boolean {
         return ranges.any { it.satisfiedBy(version) }
     }
 
+    override fun gtr(version: Version): Boolean {
+        return ranges.any { it.gtr(version) }
+    }
+
+    override fun ltr(version: Version): Boolean {
+        return ranges.any { it.ltr(version) }
+    }
 }

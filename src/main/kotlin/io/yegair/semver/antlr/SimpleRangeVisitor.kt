@@ -1,4 +1,6 @@
-package io.yegair.semver.range
+package io.yegair.semver.antlr
+
+import io.yegair.semver.range.Range
 
 /*
  * MIT License
@@ -25,14 +27,18 @@ package io.yegair.semver.range
  */
 
 /**
- *
+ * ANTLR visitor that creates an instance of [Range]
  *
  * @author Hauke Jaeger, hauke.jaeger@yegair.io
  */
-interface RangeParser {
+object SimpleRangeVisitor : VisitorSupport<Range>() {
 
-    /**
-     * Parses the given expression into a [Range].
-     */
-    fun parse(expression: String): Range
+    override fun visitSimpleRange(ctx: SimpleRangeCtx): Range {
+
+        return ctx.primitiveRange()?.accept(PrimitiveRangeVisitor)
+            ?: ctx.plainRange()?.accept(PlainRangeVisitor)
+            ?: ctx.tildeRange()?.accept(TildeRangeVisitor)
+            ?: ctx.caretRange()?.accept(CaretRangeVisitor)
+            ?: throw IllegalStateException("unsupported range expression '${ctx.text}'")
+    }
 }

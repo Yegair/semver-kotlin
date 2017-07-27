@@ -1,4 +1,5 @@
 apply plugin: 'antlr'
+apply plugin: 'idea'
 
 repositories {
     jcenter()

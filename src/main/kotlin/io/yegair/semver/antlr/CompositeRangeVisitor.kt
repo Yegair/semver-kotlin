@@ -1,7 +1,7 @@
-package io.yegair.semver.range
+package io.yegair.semver.antlr
 
-import io.yegair.semver.antlr.VersionRangeBaseVisitor
-import io.yegair.semver.antlr.VersionRangeParser
+import io.yegair.semver.range.OrRange
+import io.yegair.semver.range.Range
 
 /*
  * MIT License
@@ -28,32 +28,22 @@ import io.yegair.semver.antlr.VersionRangeParser
  */
 
 /**
- * ANTLR visitor that creates an instance of [Range]
- * when visiting a [VersionRangeParser.SingleRangeContext]
+ * ANTLR visitor that creates an instance of [Range]. It is intended
+ * to be used as top level visitor when parsing a [Range].
  *
  * @author Hauke Jaeger, hauke.jaeger@yegair.io
  */
-internal object SingleRangeVisitor: VersionRangeBaseVisitor<Range>() {
+internal object CompositeRangeVisitor : VisitorSupport<Range>() {
 
-    override fun visitSingleRange(ctx: VersionRangeParser.SingleRangeContext?): Range {
+    override fun visitCompositeRange(ctx: CompositeRangeCtx): Range {
 
-        if (ctx == null) {
-            throw IllegalStateException("[SingleRangeContext] must not be null")
+        val ranges = ctx.singleRange().map {
+            it.accept(SingleRangeVisitor)
         }
 
-        val boundedRangeCtx = ctx.boundedRange()
-
-        if (boundedRangeCtx != null) {
-            return boundedRangeCtx.accept(BoundedRangeVisitor)
-        } else {
-            val simpleRanges = ctx.simpleRange().map {
-                it.accept(SimpleRangeVisitor)
-            }
-
-            return when(simpleRanges.size) {
-                1 -> simpleRanges[0]
-                else -> AndRange(ranges = simpleRanges)
-            }
+        return when (ranges.size) {
+            1 -> ranges.first()
+            else -> OrRange(ranges)
         }
     }
 }

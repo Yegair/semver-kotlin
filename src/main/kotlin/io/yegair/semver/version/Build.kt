@@ -1,7 +1,4 @@
-package io.yegair.semver.range
-
-import io.yegair.semver.range.antlr.ANTLRRangeParser
-import io.yegair.semver.version.Version
+package io.yegair.semver.version
 
 /*
  * MIT License
@@ -28,36 +25,60 @@ import io.yegair.semver.version.Version
  */
 
 /**
- * Represents a semantic version range expression.
+ * Represents the build identifier of a semantic version.
  *
  * @author Hauke Jaeger, hauke.jaeger@yegair.io
  */
-interface Range {
-
-    /**
-     * Determines whether the given version satisfies this version range.
-     */
-    fun satisfiedBy(version: Version): Boolean
-
-    /**
-     * Return `true` if version is greater than all the versions possible in the range.
-     */
-    fun gtr(version: Version): Boolean
-
-    /**
-     * Return `true` if version is less than all the versions possible in the range.
-     */
-    fun ltr(version: Version): Boolean
+sealed class Build : Comparable<Build> {
 
     companion object {
 
-        /**
-         * Parses the given expression into a [Range]
-         */
-        fun parse(expression: String): Range {
-            return ANTLRRangeParser().parse(expression)
+        fun parse(value: String?): Build {
+            val normalized = value?.trim() ?: ""
+            return when (normalized.length) {
+                0 -> NoBuild
+                else -> BuildIdentifier(normalized)
+            }
         }
     }
 }
 
-fun String.asRange(): Range = Range.parse(this)
+class BuildIdentifier(private val value: String) : Build() {
+
+    override fun compareTo(other: Build): Int {
+        return when (other) {
+            is BuildIdentifier -> value.compareTo(other.value)
+            is NoBuild -> 1
+        }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        return when {
+            this === other -> true
+            other !is BuildIdentifier -> false
+            else -> value == other.value
+        }
+    }
+
+    override fun hashCode(): Int {
+        return value.hashCode()
+    }
+
+    override fun toString(): String {
+        return value
+    }
+}
+
+object NoBuild : Build() {
+
+    override fun compareTo(other: Build): Int {
+        return when (other) {
+            is NoBuild -> 0
+            else -> -other.compareTo(this)
+        }
+    }
+
+    override fun toString(): String {
+        return ""
+    }
+}

@@ -1,7 +1,6 @@
-package io.yegair.semver.range
+package io.yegair.semver.antlr
 
-import io.yegair.semver.version.SemanticVersion
-import io.yegair.semver.version.Version
+import io.yegair.semver.range.PrimitiveRange
 
 /*
  * MIT License
@@ -28,8 +27,23 @@ import io.yegair.semver.version.Version
  */
 
 /**
- * Represents a caret version range like `^1.3.7`.
+ * ANTLR visitor that creates an instance of [PrimitiveRange.Operator]
  *
  * @author Hauke Jaeger, hauke.jaeger@yegair.io
  */
-internal class CaretRange(version: Version) : SimpleRange(version, version.nextBreakingChange())
+internal object PrimitiveOperatorVisitor : VisitorSupport<PrimitiveRange.Operator>() {
+
+    override fun visitPrimitiveOperator(ctx: PrimitiveOperatorCtx): PrimitiveRange.Operator {
+
+        val text = ctx.text?.trim()
+
+        return when (text) {
+            "<" -> PrimitiveRange.Operator.LT
+            "<=" -> PrimitiveRange.Operator.LTE
+            ">" -> PrimitiveRange.Operator.GT
+            ">=" -> PrimitiveRange.Operator.GTE
+            "=" -> PrimitiveRange.Operator.EQ
+            else -> throw IllegalStateException("unknown operator $text")
+        }
+    }
+}

@@ -1,9 +1,4 @@
-package io.yegair.semver.range
-
-import io.yegair.semver.antlr.VersionRangeLexer
-import io.yegair.semver.antlr.VersionRangeParser
-import org.antlr.v4.runtime.CharStreams
-import org.antlr.v4.runtime.CommonTokenStream
+package io.yegair.semver.antlr
 
 /*
  * MIT License
@@ -29,20 +24,28 @@ import org.antlr.v4.runtime.CommonTokenStream
  * SOFTWARE.
  */
 
+
 /**
- * Parses range expressions using ANTLR.
+ * Base class for visitors. Eliminates the need to import [SemverBaseVisitor]
+ * in subclasses what makes them more robust when the names in the ANTLR grammar
+ * are changed.
  *
  * @author Hauke Jaeger, hauke.jaeger@yegair.io
  */
-internal class ANTLRRangeParser : RangeParser {
+abstract class VisitorSupport<T> : SemverBaseVisitor<T>()
 
-    override fun parse(expression: String): Range {
+typealias CompositeRangeCtx = SemverParser.CompositeRangeContext
+typealias SingleRangeCtx = SemverParser.SingleRangeContext
+typealias ExactRangeCtx = SemverParser.ExactRangeContext
+typealias BoundedRangeCtx = SemverParser.BoundedRangeContext
+typealias SimpleRangeCtx = SemverParser.SimpleRangeContext
+typealias PrimitiveRangeCtx = SemverParser.PrimitiveRangeContext
+typealias PrimitiveOperatorCtx = SemverParser.PrimitiveOperatorContext
+typealias PlainRangeCtx = SemverParser.PlainRangeContext
+typealias TildeRangeCtx = SemverParser.TildeRangeContext
+typealias CaretRangeCtx = SemverParser.CaretRangeContext
+typealias FullVersionCtx = SemverParser.FullVersionContext
+typealias WildcardVersionCtx = SemverParser.WildcardVersionContext
 
-        val stream = CharStreams.fromString(expression)
-        val lexer = VersionRangeLexer(stream)
-        val tokenStream = CommonTokenStream(lexer)
-        val parser = VersionRangeParser(tokenStream)
-        val context = parser.compositeRange()
-        return context.accept(CompositeRangeVisitor)
-    }
-}
+typealias PrereleaseCtx = SemverParser.PrereleaseContext
+typealias BuildCtx = SemverParser.BuildContext

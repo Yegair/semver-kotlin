@@ -1,6 +1,7 @@
 package io.yegair.semver.range
 
-import io.yegair.semver.Version
+import io.yegair.semver.version.Version
+import java.util.*
 
 /*
  * MIT License
@@ -31,9 +32,67 @@ import io.yegair.semver.Version
  *
  * @author Hauke Jaeger, hauke.jaeger@yegair.io
  */
-internal data class PrimitiveRange(val version: Version): Range {
+internal class PrimitiveRange(private val operator: Operator,
+                              private val version: Version) : Range {
+
+    enum class Operator constructor(private val symbol: String) {
+
+        LT("<"),
+        LTE("<="),
+        GT(">"),
+        GTE(">="),
+        EQ("=");
+
+        override fun toString(): String {
+            return symbol
+        }
+    }
 
     override fun satisfiedBy(version: Version): Boolean {
-        return version >= this.version
+        return when (operator) {
+            Operator.LT -> version < this.version
+            Operator.LTE -> version <= this.version
+            Operator.GT -> version > this.version
+            Operator.GTE -> version >= this.version
+            Operator.EQ -> version.compareTo(this.version) == 0
+        }
+    }
+
+    override fun gtr(version: Version): Boolean {
+        return when (operator) {
+            Operator.LT -> version >= this.version
+            Operator.LTE -> version > this.version
+            Operator.GT -> false
+            Operator.GTE -> false
+            Operator.EQ -> version > this.version
+        }
+    }
+
+    override fun ltr(version: Version): Boolean {
+        return when (operator) {
+            Operator.LT -> false
+            Operator.LTE -> false
+            Operator.GT -> version <= this.version
+            Operator.GTE -> version < this.version
+            Operator.EQ -> version < this.version
+        }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        return when {
+            other === this -> true
+            other !is PrimitiveRange -> false
+            operator != other.operator -> false
+            version != other.version -> false
+            else -> true
+        }
+    }
+
+    override fun hashCode(): Int {
+        return Objects.hash(operator, version)
+    }
+
+    override fun toString(): String {
+        return "$operator$version"
     }
 }

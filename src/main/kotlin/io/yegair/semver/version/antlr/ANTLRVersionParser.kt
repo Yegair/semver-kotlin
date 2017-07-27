@@ -1,7 +1,12 @@
-package io.yegair.semver.range
+package io.yegair.semver.version.antlr
 
-import io.yegair.semver.version.SemanticVersion
+import io.yegair.semver.antlr.SemverLexer
+import io.yegair.semver.antlr.SemverParser
+import io.yegair.semver.antlr.FullVersionVisitor
 import io.yegair.semver.version.Version
+import org.antlr.v4.runtime.CharStreams
+import org.antlr.v4.runtime.CommonTokenStream
+import org.antlr.v4.runtime.Token
 
 /*
  * MIT License
@@ -28,8 +33,39 @@ import io.yegair.semver.version.Version
  */
 
 /**
- * Represents a caret version range like `^1.3.7`.
+ * Parses versions using ANTLR.
  *
  * @author Hauke Jaeger, hauke.jaeger@yegair.io
  */
-internal class CaretRange(version: Version) : SimpleRange(version, version.nextBreakingChange())
+internal object ANTLRVersionParser {
+
+    fun parse(value: String): Version {
+//        debug(value)
+        val parser = parser(value)
+        val context = parser.fullVersion()
+        return context.accept(FullVersionVisitor)
+    }
+
+    private fun parser(expression: String) =
+        SemverParser(tokenStream(expression))
+
+    private fun tokenStream(expression: String) =
+        CommonTokenStream(lexer(expression))
+
+    private fun lexer(expression: String) =
+        SemverLexer(charStream(expression))
+
+    private fun charStream(expression: String) =
+        CharStreams.fromString(expression)
+
+    private fun debug(expression: String) {
+        val lexer = lexer(expression)
+
+        var token: Token = lexer.nextToken()
+
+        while (token.type != Token.EOF) {
+            println(token)
+            token = lexer.nextToken()
+        }
+    }
+}

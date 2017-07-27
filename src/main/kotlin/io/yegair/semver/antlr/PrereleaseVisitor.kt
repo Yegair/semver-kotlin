@@ -1,7 +1,6 @@
-package io.yegair.semver.range
+package io.yegair.semver.antlr
 
-import io.yegair.semver.antlr.VersionRangeBaseVisitor
-import io.yegair.semver.antlr.VersionRangeParser
+import io.yegair.semver.version.Prerelease
 
 /*
  * MIT License
@@ -28,22 +27,22 @@ import io.yegair.semver.antlr.VersionRangeParser
  */
 
 /**
- *
+ * ANTLR visitor that creates an instance of [Prerelease]
  *
  * @author Hauke Jaeger, hauke.jaeger@yegair.io
  */
-internal object CompositeRangeVisitor: VersionRangeBaseVisitor<Range>() {
+internal object PrereleaseVisitor : VisitorSupport<Prerelease>() {
 
-    override fun visitCompositeRange(ctx: VersionRangeParser.CompositeRangeContext?): Range {
+    override fun visitPrerelease(ctx: PrereleaseCtx): Prerelease {
 
-        if (ctx == null) {
-            throw IllegalStateException("[ctx] must not be null")
+        val version = ctx.prereleaseVersion?.text?.toInt()
+        val suffix = ctx.suffix?.text
+
+        val prefix = when {
+            version == null && suffix == null -> ctx.prereleaseText?.text
+            else -> ctx.prefix?.text
         }
 
-        val ranges = ctx.singleRange().map {
-            it.accept(SingleRangeVisitor)
-        }
-
-        return OrRange(ranges)
+        return Prerelease.of(prefix, version, suffix)
     }
 }

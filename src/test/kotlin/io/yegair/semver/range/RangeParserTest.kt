@@ -1,6 +1,10 @@
 package io.yegair.semver.range
 
-import io.yegair.semver.Version
+import io.yegair.semver.version.SemanticVersion
+import io.yegair.semver.range.PrimitiveRange.Operator.LT
+import io.yegair.semver.version.VersionNumber
+import io.yegair.semver.version.Wildcard
+import io.yegair.semver.version.WildcardVersion
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -26,9 +30,27 @@ internal class RangeParserTest {
 
             // then
             assertEquals(
-                OrRange(
-                    CaretRange(Version(1, 2, 4))
-                ),
+                CaretRange(SemanticVersion(1, 2, 4)),
+                range
+            )
+        }
+
+        @Test
+        fun primitiveLt() {
+
+            // given
+            val expression = "< 3.3.x"
+
+            // when
+            val range = Range.parse(expression)
+
+            // then
+            assertEquals(
+                PrimitiveRange(LT, WildcardVersion(
+                    VersionNumber.of(3),
+                    VersionNumber.of(3),
+                    Wildcard
+                )),
                 range
             )
         }

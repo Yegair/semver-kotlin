@@ -1,7 +1,6 @@
-package io.yegair.semver.range
+package io.yegair.semver.antlr
 
-import io.yegair.semver.version.SemanticVersion
-import io.yegair.semver.version.Version
+import io.yegair.semver.range.ExactRange
 
 /*
  * MIT License
@@ -28,8 +27,17 @@ import io.yegair.semver.version.Version
  */
 
 /**
- * Represents a caret version range like `^1.3.7`.
+ * ANTLR visitor that creates an instance of [ExactRange]
  *
  * @author Hauke Jaeger, hauke.jaeger@yegair.io
  */
-internal class CaretRange(version: Version) : SimpleRange(version, version.nextBreakingChange())
+internal object ExactRangeVisitor : VisitorSupport<ExactRange>() {
+
+    override fun visitExactRange(ctx: ExactRangeCtx): ExactRange {
+
+        val version = ctx.fullVersion()?.accept(FullVersionVisitor)
+            ?: throw IllegalStateException("[fullVersion] must be present")
+
+        return ExactRange(version)
+    }
+}

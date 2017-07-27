@@ -1,7 +1,7 @@
-package io.yegair.semver.range
+package io.yegair.semver.antlr
 
-import io.yegair.semver.version.SemanticVersion
-import io.yegair.semver.version.Version
+import io.yegair.semver.range.AndRange
+import io.yegair.semver.range.Range
 
 /*
  * MIT License
@@ -28,8 +28,28 @@ import io.yegair.semver.version.Version
  */
 
 /**
- * Represents a caret version range like `^1.3.7`.
+ * ANTLR visitor that creates an instance of [Range]
  *
  * @author Hauke Jaeger, hauke.jaeger@yegair.io
  */
-internal class CaretRange(version: Version) : SimpleRange(version, version.nextBreakingChange())
+internal object SingleRangeVisitor : VisitorSupport<Range>() {
+
+    override fun visitSingleRange(ctx: SingleRangeCtx): Range {
+
+        return ctx.exactRange()?.accept(ExactRangeVisitor)
+            ?: ctx.boundedRange()?.accept(BoundedRangeVisitor)
+            ?: simpleRanges(ctx)
+    }
+
+    private fun simpleRanges(ctx: SingleRangeCtx): Range {
+        val simpleRanges = ctx.simpleRange().map {
+            it.accept(SimpleRangeVisitor)
+        }
+
+        return when (simpleRanges.size) {
+            1 -> simpleRanges[0]
+            else -> AndRange(ranges = simpleRanges)
+        }
+    }
+
+}

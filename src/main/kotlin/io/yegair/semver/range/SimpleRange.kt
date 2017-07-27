@@ -1,7 +1,8 @@
 package io.yegair.semver.range
 
-import io.yegair.semver.antlr.VersionRangeBaseVisitor
-import io.yegair.semver.antlr.VersionRangeParser
+import io.yegair.semver.version.SemanticVersion
+import io.yegair.semver.version.Version
+import java.util.*
 
 /*
  * MIT License
@@ -28,20 +29,41 @@ import io.yegair.semver.antlr.VersionRangeParser
  */
 
 /**
- *
+ * A simple version range that is defined by an min inclusive lower bound and
+ * an max exclusive upper bound.
  *
  * @author Hauke Jaeger, hauke.jaeger@yegair.io
  */
-internal object PlainRangeVisitor : VersionRangeBaseVisitor<Range>() {
+abstract internal class SimpleRange protected constructor(private val minInclusive: Version,
+                                                          private val maxExclusive: Version) : Range {
 
-    override fun visitPlainRange(ctx: VersionRangeParser.PlainRangeContext?): Range {
+    override fun satisfiedBy(version: Version): Boolean {
+        return version >= minInclusive && version < maxExclusive
+    }
 
-        if (ctx == null) {
-            throw IllegalStateException("[PlainRangeContext] must not be null")
+    override fun gtr(version: Version): Boolean {
+        return version >= maxExclusive
+    }
+
+    override fun ltr(version: Version): Boolean {
+        return version < minInclusive
+    }
+
+    override fun toString(): String {
+        return "[$minInclusive .. $maxExclusive)"
+    }
+
+    override fun equals(other: Any?): Boolean {
+        return when {
+            this === other -> true
+            other !is SimpleRange -> false
+            minInclusive != other.minInclusive -> false
+            maxExclusive != other.maxExclusive -> false
+            else -> true
         }
+    }
 
-        val version = ctx.wildcardVersion().accept(WildcardVersionVisitor)
-
-        return PlainRange(version)
+    override fun hashCode(): Int {
+        return Objects.hash(minInclusive, maxExclusive)
     }
 }

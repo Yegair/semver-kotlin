@@ -1,8 +1,4 @@
-package io.yegair.semver.range
-
-import io.yegair.semver.Version
-import io.yegair.semver.antlr.VersionRangeBaseVisitor
-import io.yegair.semver.antlr.VersionRangeParser
+package io.yegair.semver.version
 
 /*
  * MIT License
@@ -29,29 +25,28 @@ import io.yegair.semver.antlr.VersionRangeParser
  */
 
 /**
- * ANTLR visitor that creates an instance of [Version]
- * when visiting a [VersionRangeParser.FullVersionContext]
+ *
  *
  * @author Hauke Jaeger, hauke.jaeger@yegair.io
  */
-internal object FullVersionVisitor : VersionRangeBaseVisitor<Version>() {
+object AnyVersion : Version() {
 
-    override fun visitFullVersion(ctx: VersionRangeParser.FullVersionContext?): Version {
+    override val major = Wildcard
+    override val minor = Wildcard
+    override val patch = Wildcard
 
-        if (ctx == null) {
-            throw IllegalStateException("[FullVersionContext] must not be null")
-        }
+    override val prerelease = NoPrerelease
+    override val build = NoBuild
 
-        val major = ctx.major?.text?.toInt() ?: throw IllegalStateException("[major] version number must be present")
-        val minor = ctx.minor?.text?.toInt() ?: throw IllegalStateException("[minor] version number must be present")
-        val patch = ctx.patch?.text?.toInt() ?: throw IllegalStateException("[patch] version number must be present")
+    override fun nextMajor() = AnyVersion
 
-        // TODO: parse prerelease and build
+    override fun nextMinor() = AnyVersion
 
-        return Version(
-            major = major,
-            minor = minor,
-            patch = patch
-        )
-    }
+    override fun nextPatch() = AnyVersion
+
+    override fun nextBreakingChange() = AnyVersion
+
+    override fun floor() = AnyVersion
+
+    override fun ceil() = AnyVersion
 }

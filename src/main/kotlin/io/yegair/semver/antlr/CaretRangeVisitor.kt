@@ -1,7 +1,6 @@
-package io.yegair.semver.range
+package io.yegair.semver.antlr
 
-import io.yegair.semver.antlr.VersionRangeBaseVisitor
-import io.yegair.semver.antlr.VersionRangeParser
+import io.yegair.semver.range.CaretRange
 
 /*
  * MIT License
@@ -28,21 +27,17 @@ import io.yegair.semver.antlr.VersionRangeParser
  */
 
 /**
- *
+ * ANTLR visitor that creates an instance of [CaretRange]
  *
  * @author Hauke Jaeger, hauke.jaeger@yegair.io
  */
-internal object CaretRangeVisitor: VersionRangeBaseVisitor<CaretRange>() {
+internal object CaretRangeVisitor : VisitorSupport<CaretRange>() {
 
-    override fun visitCaretRange(ctx: VersionRangeParser.CaretRangeContext?): CaretRange {
+    override fun visitCaretRange(ctx: CaretRangeCtx): CaretRange {
 
-        if (ctx == null) {
-            throw IllegalStateException("[CaretRangeContext] must not be null")
-        }
+        val version = ctx.wildcardVersion()?.accept(WildcardVersionVisitor)
+            ?: throw IllegalStateException("[wildcardVersion] must be present")
 
-        val fullVersionCtx = ctx.fullVersion() ?: throw IllegalStateException("[fullVersion] must be present")
-
-        val version = fullVersionCtx.accept(FullVersionVisitor)
         return CaretRange(version = version)
     }
 }

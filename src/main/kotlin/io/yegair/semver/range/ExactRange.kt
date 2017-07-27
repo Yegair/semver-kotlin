@@ -1,6 +1,5 @@
 package io.yegair.semver.range
 
-import io.yegair.semver.version.SemanticVersion
 import io.yegair.semver.version.Version
 
 /*
@@ -28,8 +27,37 @@ import io.yegair.semver.version.Version
  */
 
 /**
- * Represents a caret version range like `^1.3.7`.
+ * A [Range] that matches exactly one [Version].
  *
  * @author Hauke Jaeger, hauke.jaeger@yegair.io
  */
-internal class CaretRange(version: Version) : SimpleRange(version, version.nextBreakingChange())
+internal class ExactRange(private val version:Version): Range {
+
+    override fun satisfiedBy(version: Version): Boolean {
+        return this.version.compareTo(version) == 0
+    }
+
+    override fun gtr(version: Version): Boolean {
+        return version > this.version
+    }
+
+    override fun ltr(version: Version): Boolean {
+        return version < this.version
+    }
+
+    override fun equals(other: Any?): Boolean {
+        return when {
+            this === other -> true
+            other !is ExactRange -> false
+            else -> version == other.version
+        }
+    }
+
+    override fun hashCode(): Int {
+        return version.hashCode()
+    }
+
+    override fun toString(): String {
+        return version.toString()
+    }
+}

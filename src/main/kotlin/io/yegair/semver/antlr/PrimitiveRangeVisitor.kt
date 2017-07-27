@@ -1,8 +1,6 @@
-package io.yegair.semver.range
+package io.yegair.semver.antlr
 
-import io.yegair.semver.Version
-import io.yegair.semver.antlr.VersionRangeBaseVisitor
-import io.yegair.semver.antlr.VersionRangeParser
+import io.yegair.semver.range.PrimitiveRange
 
 /*
  * MIT License
@@ -29,13 +27,20 @@ import io.yegair.semver.antlr.VersionRangeParser
  */
 
 /**
- *
+ * ANTLR visitor that creates an instance of [PrimitiveRange]
  *
  * @author Hauke Jaeger, hauke.jaeger@yegair.io
  */
-internal object WildcardVersionVisitor: VersionRangeBaseVisitor<Version>() {
+internal object PrimitiveRangeVisitor : VisitorSupport<PrimitiveRange>() {
 
-    override fun visitWildcardVersion(ctx: VersionRangeParser.WildcardVersionContext?): Version {
-        return super.visitWildcardVersion(ctx)
+    override fun visitPrimitiveRange(ctx: PrimitiveRangeCtx): PrimitiveRange {
+
+        val operator = ctx.primitiveOperator()?.accept(PrimitiveOperatorVisitor)
+            ?: throw IllegalStateException("[primitiveOperator] must be present")
+
+        val version = ctx.wildcardVersion()?.accept(WildcardVersionVisitor)
+            ?: throw IllegalStateException("[wildcardVersion] must be present")
+
+        return PrimitiveRange(operator, version)
     }
 }

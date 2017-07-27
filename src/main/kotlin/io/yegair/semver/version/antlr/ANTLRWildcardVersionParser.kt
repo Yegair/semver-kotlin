@@ -1,7 +1,10 @@
-package io.yegair.semver.range
+package io.yegair.semver.version.antlr
 
-import io.yegair.semver.antlr.VersionRangeBaseVisitor
-import io.yegair.semver.antlr.VersionRangeParser
+import io.yegair.semver.antlr.*
+import io.yegair.semver.version.Version
+import org.antlr.v4.runtime.CharStreams
+import org.antlr.v4.runtime.CommonTokenStream
+import org.antlr.v4.runtime.Token
 
 /*
  * MIT License
@@ -28,22 +31,15 @@ import io.yegair.semver.antlr.VersionRangeParser
  */
 
 /**
- *
+ * Parses wildcard versions using ANTLR.
  *
  * @author Hauke Jaeger, hauke.jaeger@yegair.io
  */
-internal object PrimitiveRangeVisitor : VersionRangeBaseVisitor<Range>() {
+internal object ANTLRWildcardVersionParser: ParserSupport() {
 
-    override fun visitPrimitiveRange(ctx: VersionRangeParser.PrimitiveRangeContext?): Range {
-
-        if (ctx == null) {
-            throw IllegalStateException("[PrimitiveRangeContext] must not be null")
-        }
-
-        // TODO parse operator
-
-        val version = ctx.wildcardVersion().accept(WildcardVersionVisitor)
-
-        return PrimitiveRange(version)
+    fun parse(value: String): Version {
+        val parser = parser(value)
+        val context = parser.wildcardVersion()
+        return context.accept(WildcardVersionVisitor)
     }
 }

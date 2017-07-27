@@ -1,7 +1,6 @@
-package io.yegair.semver.range
+package io.yegair.semver.antlr
 
-import io.yegair.semver.antlr.VersionRangeBaseVisitor
-import io.yegair.semver.antlr.VersionRangeParser
+import io.yegair.semver.version.Build
 
 /*
  * MIT License
@@ -28,21 +27,15 @@ import io.yegair.semver.antlr.VersionRangeParser
  */
 
 /**
- *
+ * ANTLR visitor that creates an instance of [Build]
  *
  * @author Hauke Jaeger, hauke.jaeger@yegair.io
  */
-internal object TildeRangeVisitor: VersionRangeBaseVisitor<TildeRange>() {
+internal object BuildVisitor : SemverBaseVisitor<Build>() {
 
-    override fun visitTildeRange(ctx: VersionRangeParser.TildeRangeContext?): TildeRange {
+    override fun visitBuild(ctx: BuildCtx): Build {
 
-        if (ctx == null) {
-            throw IllegalStateException("[TildeRangeContext] must not be null")
-        }
-
-        val fullVersionCtx = ctx.fullVersion() ?: throw IllegalStateException("[fullVersion] must be present")
-
-        val version = fullVersionCtx.accept(FullVersionVisitor)
-        return TildeRange(version = version)
+        val build = ctx.identifiers()?.text
+        return Build.parse(build)
     }
 }

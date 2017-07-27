@@ -1,7 +1,6 @@
-package io.yegair.semver.range
+package io.yegair.semver.antlr
 
-import io.yegair.semver.version.SemanticVersion
-import io.yegair.semver.version.Version
+import io.yegair.semver.range.TildeRange
 
 /*
  * MIT License
@@ -28,8 +27,17 @@ import io.yegair.semver.version.Version
  */
 
 /**
- * Represents a caret version range like `^1.3.7`.
+ * ANTLR visitor that creates an instance of [TildeRange]
  *
  * @author Hauke Jaeger, hauke.jaeger@yegair.io
  */
-internal class CaretRange(version: Version) : SimpleRange(version, version.nextBreakingChange())
+internal object TildeRangeVisitor : VisitorSupport<TildeRange>() {
+
+    override fun visitTildeRange(ctx: TildeRangeCtx): TildeRange {
+
+        val version = ctx.wildcardVersion()?.accept(WildcardVersionVisitor)
+            ?: throw IllegalStateException("[wildcardVersion] must be present")
+
+        return TildeRange(version = version)
+    }
+}

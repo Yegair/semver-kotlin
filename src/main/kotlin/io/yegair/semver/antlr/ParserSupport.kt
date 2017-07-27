@@ -1,7 +1,7 @@
-package io.yegair.semver.range
+package io.yegair.semver.antlr
 
-import io.yegair.semver.antlr.VersionRangeBaseVisitor
-import io.yegair.semver.antlr.VersionRangeParser
+import org.antlr.v4.runtime.CharStreams
+import org.antlr.v4.runtime.CommonTokenStream
 
 /*
  * MIT License
@@ -28,25 +28,21 @@ import io.yegair.semver.antlr.VersionRangeParser
  */
 
 /**
- * ANTLR visitor that creates an instance of [Range]
- * when visiting a [VersionRangeParser.BoundedRangeContext]
+ * Base class for parsers using the `Semver` grammar.
  *
  * @author Hauke Jaeger, hauke.jaeger@yegair.io
  */
-internal object BoundedRangeVisitor : VersionRangeBaseVisitor<Range>() {
+abstract class ParserSupport {
 
-    override fun visitBoundedRange(ctx: VersionRangeParser.BoundedRangeContext?): Range {
+    protected fun parser(expression: String) =
+        SemverParser(tokenStream(expression))
 
-        if (ctx == null) {
-            throw IllegalStateException("[BoundedRangeContext] must not be null")
-        }
+    private fun tokenStream(expression: String) =
+        CommonTokenStream(lexer(expression))
 
-        val lowerCtx = ctx.fullVersion(0) ?: throw IllegalStateException("lower bound [fullVersion] must be present")
-        val upperCtx = ctx.fullVersion(1) ?: throw IllegalStateException("upper bound [fullVersion] must be present")
+    private fun lexer(expression: String) =
+        SemverLexer(charStream(expression))
 
-        val lower = lowerCtx.accept(FullVersionVisitor)
-        val upper = upperCtx.accept(FullVersionVisitor)
-
-        return BoundedRange(lower = lower, upper = upper)
-    }
+    private fun charStream(expression: String) =
+        CharStreams.fromString(expression)
 }
