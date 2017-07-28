@@ -131,6 +131,15 @@ internal class SemanticVersion(override val major: VersionNumber = NoVersionNumb
         }
     }
 
+    override fun release() =
+        SemanticVersion(
+            major = major,
+            minor = minor,
+            patch = patch,
+            prerelease = NoPrerelease,
+            build = NoBuild
+        )
+
     override fun floor() =
         SemanticVersion(
             major = when (major) {

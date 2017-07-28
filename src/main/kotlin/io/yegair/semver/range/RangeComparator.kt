@@ -27,13 +27,43 @@ import io.yegair.semver.version.Version
  */
 
 /**
- * A simple version range that is defined by an inclusive lower bound and
- * an exclusive upper bound.
+ * Compares a [Version] to the bounds of a [Range].
  *
  * @author Hauke Jaeger, hauke.jaeger@yegair.io
  */
-abstract internal class SimpleRange(minInclusive: Version,
-                                    maxExclusive: Version) :
-    RangeSupport(
-        SimpleRangeComparator(minInclusive, maxExclusive)
-    )
+internal interface RangeComparator {
+
+    enum class Result {
+
+        /**
+         * Result of [RangeComparator.compare] when the given [Version] is lower than the range.
+         */
+        Lower,
+
+        /**
+         * Result of [RangeComparator.compare] when the given [Version] is greater than the range.
+         */
+        Greater,
+
+        /**
+         * Result of [RangeComparator.compare] when the given [Version] is neither lower nor greater
+         * than the range but nevertheless doesn't satisfy in the range.
+         */
+        Excluded,
+
+        /**
+         * Result of [RangeComparator.compare] when the given [Version] satisfies the bounds of the range.
+         */
+        Satisfied
+    }
+
+    /**
+     * Compares the given [Version] to the bounds of a [Range].
+     * Returns [Result.Satisfied] if the version satisfies the bounds of the range.
+     * Returns [Result.Lower] if the version is lower than the range.
+     * Returns [Result.Greater] if the version is greater than the range.
+     * Returns [Result.Excluded] if the version is neither lower nor greater
+     * than the range but nevertheless doesn't satisfy in the range.
+     */
+    fun compare(version: Version): Result
+}

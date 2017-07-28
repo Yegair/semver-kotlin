@@ -109,6 +109,8 @@ internal class WildcardVersion(override val major: VersionNumber = NoVersionNumb
 
     override fun nextBreakingChange(): Version = ceil()
 
+    override fun release() = this
+
     override fun floor(): Version {
         return SemanticVersion(
             major = major,

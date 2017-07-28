@@ -1,4 +1,7 @@
-package io.yegair.semver.version
+package io.yegair.semver.range
+
+import io.yegair.semver.range.RangeComparator.Result.*
+import io.yegair.semver.version.Version
 
 /*
  * MIT License
@@ -25,30 +28,38 @@ package io.yegair.semver.version
  */
 
 /**
- *
+ * Base class for ranges that provides an implementation of the public
+ * [Range] API using a [RangeComparator].
  *
  * @author Hauke Jaeger, hauke.jaeger@yegair.io
  */
-object AnyVersion : Version() {
+internal abstract class RangeSupport(private val comparator: RangeComparator) : Range {
 
-    override val major = Wildcard
-    override val minor = Wildcard
-    override val patch = Wildcard
+    override fun satisfiedBy(version: Version): Boolean {
+        return comparator.compare(version) == Satisfied
+    }
 
-    override val prerelease = NoPrerelease
-    override val build = NoBuild
+    override fun gtr(version: Version): Boolean {
+        return comparator.compare(version) == Greater
+    }
 
-    override fun nextMajor() = AnyVersion
+    override fun ltr(version: Version): Boolean {
+        return comparator.compare(version) == Lower
+    }
 
-    override fun nextMinor() = AnyVersion
+    override fun equals(other: Any?): Boolean {
+        return when {
+            this === other -> true
+            other !is RangeSupport -> false
+            else -> comparator == other.comparator
+        }
+    }
 
-    override fun nextPatch() = AnyVersion
+    override fun hashCode(): Int {
+        return comparator.hashCode()
+    }
 
-    override fun nextBreakingChange() = AnyVersion
-
-    override fun release() = AnyVersion
-
-    override fun floor() = AnyVersion
-
-    override fun ceil() = AnyVersion
+    override fun toString(): String {
+        return comparator.toString()
+    }
 }

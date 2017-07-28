@@ -92,6 +92,26 @@ abstract class Version : Comparable<Version> {
     abstract fun nextBreakingChange(): Version
 
     /**
+     * Resolves the release version of this version. The release of a version has the same
+     * [major], [minor], [patch] tuple without any [prerelease] and [build] identifiers.
+     * Resolving the release for wildcard and partial versions does not make much sense,
+     * hence it is defined as the wildcard/partial version itself.
+     *
+     * ```
+     * "1.2.7".asVersion().release()        // "1.2.7"
+     * "0.4.2".asVersion().release()        // "0.4.2"
+     * "0.0.3".asVersion().release()        // "0.0.3"
+     * "2.9.1-beta.3".asVersion().release() // "2.9.1"
+     * "20.0.1+27".asVersion().release()    // "20.0.1"
+     * "5.*".asVersion().release()          // "5.*"
+     * "2.7.x".asVersion().release()        // "2.7.x"
+     * "0".asVersion().release()            // "0"
+     * "0.8".asVersion().release()          // "0.8"
+     * ```
+     */
+    abstract fun release(): Version
+
+    /**
      * Resolves the base version of this version. For semantic versions the base is the version itself
      * without any build identifiers. For wildcard version the base is the version without any prerelease
      * and build with all wildcards replaced with `0`. Base versions are the lower inclusive bound of a
