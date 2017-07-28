@@ -89,7 +89,7 @@ identifiers
 
 identifier
     : integer
-    | ((HYPHEN | DIGIT_1_9) | letter) (HYPHEN | digit | letter)+
+    | ((HYPHEN | DIGIT_0 | DIGIT_1_9) | letter) (HYPHEN | digit | letter)*
     ;
 
 integer
