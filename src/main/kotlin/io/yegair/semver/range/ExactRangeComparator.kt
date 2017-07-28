@@ -1,5 +1,7 @@
 package io.yegair.semver.range
 
+import io.yegair.semver.range.RangeComparator.Result
+import io.yegair.semver.range.RangeComparator.Result.*
 import io.yegair.semver.version.Version
 
 /*
@@ -27,8 +29,36 @@ import io.yegair.semver.version.Version
  */
 
 /**
- * A [Range] that matches exactly one [Version].
+ * [RangeComparator] that compares a [Version] to a specific version
  *
  * @author Hauke Jaeger, hauke.jaeger@yegair.io
  */
-internal class ExactRange(version: Version) : RangeSupport(ExactRangeComparator(version))
+internal class ExactRangeComparator(private val version: Version) : RangeComparator {
+
+    override fun compare(version: Version): Result {
+
+        val cmp = version.compareTo(this.version)
+
+        return when {
+            cmp < 0 -> Lower
+            cmp > 0 -> Greater
+            else -> Satisfied
+        }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        return when {
+            this === other -> true
+            other !is ExactRangeComparator -> false
+            else -> version == other.version
+        }
+    }
+
+    override fun hashCode(): Int {
+        return version.hashCode()
+    }
+
+    override fun toString(): String {
+        return "[$version]"
+    }
+}

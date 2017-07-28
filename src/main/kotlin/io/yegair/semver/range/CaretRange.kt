@@ -32,4 +32,4 @@ import io.yegair.semver.version.Version
  *
  * @author Hauke Jaeger, hauke.jaeger@yegair.io
  */
-internal class CaretRange(version: Version) : SimpleRange(version, version.nextBreakingChange())
+internal class CaretRange(version: Version) : SimpleRange(version.floor(), version.nextBreakingChange())

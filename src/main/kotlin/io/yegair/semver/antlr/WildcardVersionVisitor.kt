@@ -35,7 +35,7 @@ internal object WildcardVersionVisitor : SemverBaseVisitor<Version>() {
 
     override fun visitWildcardVersion(ctx: WildcardVersionCtx): Version {
 
-        val major = ctx.major?.text?.toInt() ?: throw IllegalStateException("[major] must be present")
+        val majorNumber = ctx.major?.text?.toInt() ?: throw IllegalStateException("[major] must be present")
         val minorNumber = ctx.minor?.text?.toInt()
         val minorWildcard = ctx.minorWildcard?.text
         val patchNumber = ctx.patch?.text?.toInt()
@@ -43,25 +43,37 @@ internal object WildcardVersionVisitor : SemverBaseVisitor<Version>() {
         val prerelease = ctx.prerelease()?.accept(PrereleaseVisitor)
         val build = ctx.build()?.accept(BuildVisitor)
 
-        return when (minorWildcard) {
-            null -> when (patchWildcard) {
-                null -> SemanticVersion(
-                    major = VersionNumber.of(major),
-                    minor = VersionNumber.of(minorNumber),
-                    patch = VersionNumber.of(patchNumber),
+        val major = VersionNumber.of(majorNumber)
+
+        val minor = when (minorWildcard) {
+            null -> VersionNumber.of(minorNumber)
+            else -> Wildcard
+        }
+
+        val patch = when (patchWildcard) {
+            null -> VersionNumber.of(patchNumber)
+            else -> Wildcard
+        }
+
+        return when (minor) {
+            is IntVersionNumber -> when (patch) {
+                is IntVersionNumber -> SemanticVersion(
+                    major = major,
+                    minor = minor,
+                    patch = patch,
                     prerelease = prerelease ?: NoPrerelease,
                     build = build ?: NoBuild
                 )
                 else -> WildcardVersion(
-                    major = VersionNumber.of(major),
-                    minor = VersionNumber.of(minorNumber),
-                    patch = Wildcard
+                    major = major,
+                    minor = minor,
+                    patch = patch
                 )
             }
             else -> WildcardVersion(
-                major = VersionNumber.of(major),
-                minor = Wildcard,
-                patch = NoVersionNumber
+                major = major,
+                minor = minor,
+                patch = patch
             )
         }
     }

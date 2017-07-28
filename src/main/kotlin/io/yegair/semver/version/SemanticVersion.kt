@@ -107,9 +107,8 @@ internal class SemanticVersion(override val major: VersionNumber = NoVersionNumb
      * "2.9.1-beta.3".asVersion().nextBreakingChange() // "3.0.0"
      * ```
      */
-    override fun nextBreakingChange(): SemanticVersion {
-
-        return when {
+    override fun nextBreakingChange() =
+        when {
             major > Zero ->
                 SemanticVersion(
                     major = major + 1,
@@ -129,7 +128,6 @@ internal class SemanticVersion(override val major: VersionNumber = NoVersionNumb
                     patch = patch + 1
                 )
         }
-    }
 
     override fun release() =
         SemanticVersion(

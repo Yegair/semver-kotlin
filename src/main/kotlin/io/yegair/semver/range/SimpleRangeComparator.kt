@@ -60,15 +60,9 @@ internal class SimpleRangeComparator(private val lower: Version,
     private fun compareLower(version: Version): Result {
 
         if (lower.prerelease == NoPrerelease) {
-            val cmp = version.compareTo(lower)
-            return when {
-                cmp < 0 -> Lower
-                cmp > 0 -> Greater
-                else -> Satisfied
-            }
-        } else {
-            if (version.release() == lower.release()) {
-                val cmp = version.prerelease.compareTo(lower.prerelease)
+
+            if (version.prerelease == NoPrerelease) {
+                val cmp = version.compareTo(lower)
                 return when {
                     cmp < 0 -> Lower
                     cmp > 0 -> Greater
@@ -76,6 +70,27 @@ internal class SimpleRangeComparator(private val lower: Version,
                 }
             } else {
                 return Excluded
+            }
+
+        } else {
+            if (version.prerelease == NoPrerelease) {
+                val cmp = version.compareTo(lower)
+                return when {
+                    cmp < 0 -> Lower
+                    cmp > 0 -> Greater
+                    else -> Satisfied
+                }
+            } else {
+                if (version.release() == lower.release()) {
+                    val cmp = version.prerelease.compareTo(lower.prerelease)
+                    return when {
+                        cmp < 0 -> Lower
+                        cmp > 0 -> Greater
+                        else -> Satisfied
+                    }
+                } else {
+                    return Excluded
+                }
             }
         }
     }

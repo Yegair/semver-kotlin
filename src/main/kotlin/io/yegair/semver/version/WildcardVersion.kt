@@ -1,5 +1,6 @@
 package io.yegair.semver.version
 
+import io.yegair.semver.version.VersionNumber.Companion.One
 import io.yegair.semver.version.VersionNumber.Companion.Zero
 import io.yegair.semver.version.antlr.ANTLRWildcardVersionParser
 
@@ -92,12 +93,16 @@ internal class WildcardVersion(override val major: VersionNumber = NoVersionNumb
     }
 
     override fun nextMinor(): Version {
-        return WildcardVersion(
+        return SemanticVersion(
             major = when (major) {
                 is NoVersionNumber -> Zero
                 else -> major
             },
-            minor = minor + 1,
+            minor = when (minor) {
+                is Wildcard -> One
+                is NoVersionNumber -> One
+                is VersionNumber -> minor + 1
+            },
             patch = when (patch) {
                 is NoVersionNumber -> NoVersionNumber
                 else -> Zero
@@ -107,7 +112,15 @@ internal class WildcardVersion(override val major: VersionNumber = NoVersionNumb
 
     override fun nextPatch() = this
 
-    override fun nextBreakingChange(): Version = ceil()
+    override fun nextBreakingChange() =
+        when (major) {
+            Zero -> when (minor) {
+                Wildcard -> nextMajor()
+                NoVersionNumber -> nextMajor()
+                else -> nextMinor()
+            }
+            else -> nextMajor()
+        }
 
     override fun release() = this
 

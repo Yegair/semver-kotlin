@@ -70,12 +70,14 @@ internal class PlainRangeTest {
 
         @ParameterizedTest
         @CsvSource(
-            "3.0.0, true",
-            "2.9.9, false",
-            "3.99.99-beta.99, true",
-            "4.0.0, false",
-            "4.0.0+43, false",
-            "4.0.0-beta.1, false"
+            "3.0.0,           true",
+            "2.9.9,           false",
+            "3.99.99,         true",
+            "3.99.99-beta.99, false",
+            "3.99.99+2,       true",
+            "4.0.0,           false",
+            "4.0.0+43,        false",
+            "4.0.0-beta.1,    false"
         )
         fun partialNoMinorNoPatch(version: String, match: Boolean) {
 
@@ -91,12 +93,13 @@ internal class PlainRangeTest {
 
         @ParameterizedTest
         @CsvSource(
-            "20.2.0, true",
-            "20.1.42, false",
-            "20.2.42, true",
-            "20.3.0, false",
-            "20.3.0+512, false",
-            "20.3.0-3+420, false",
+            "20.2.0,                true",
+            "20.1.42,               false",
+            "20.2.42,               true",
+            "20.2.42-beta.4,        false",
+            "20.3.0,                false",
+            "20.3.0+512,            false",
+            "20.3.0-3+420,          false",
             "20.3.0-beta.2.nightly, false"
         )
         fun partialNoPatch(version: String, match: Boolean) {
@@ -113,9 +116,11 @@ internal class PlainRangeTest {
 
         @ParameterizedTest
         @CsvSource(
-            "2.0.0, true",
-            "1.999.99, false",
-            "2.17.15-16, true",
+            "2.0.0,         true",
+            "1.999.99,      false",
+            "2.17.15,       true",
+            "2.17.15-16,    false",
+            "2.17.15+42,    true",
             "3.0.0-alpha.4, false"
         )
         fun minorWildcard(version: String, match: Boolean) {
@@ -132,12 +137,14 @@ internal class PlainRangeTest {
 
         @ParameterizedTest
         @CsvSource(
-            "1.2.0+57, true",
-            "1.1.99, false",
-            "1.2.99-beta.16, true",
-            "1.3.0, false",
-            "1.3.0+3, false",
-            "1.3.0-17, false",
+            "1.2.0+57,         true",
+            "1.1.99,           false",
+            "1.2.99,           true",
+            "1.2.99-beta.16,   false",
+            "1.2.99+12,        true",
+            "1.3.0,            false",
+            "1.3.0+3,          false",
+            "1.3.0-17,         false",
             "1.3.0-alpha.4+25, false"
         )
         fun patchWildcard(version: String, match: Boolean) {
