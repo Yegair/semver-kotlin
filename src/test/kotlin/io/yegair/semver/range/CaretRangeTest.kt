@@ -406,5 +406,44 @@ internal class CaretRangeTest {
                 "'$version' ${if (match) "should" else "should not"} match range '$range'"
             )
         }
+
+        @ParameterizedTest
+        @CsvSource(
+            "0.0.0,            true",
+            "0.0.0+77,         true",
+            "0.0.0-alpha.4,    false",
+            "0.0.0-alpha.4+11, false",
+
+            "0.0.4,            true",
+            "0.0.4-beta,       false",
+            "0.0.4+0a,         true",
+            "0.0.4-beta+2,     false",
+
+            "0.7.4,            true",
+            "0.7.4-beta,       false",
+            "0.7.4+0a,         true",
+            "0.7.4-beta+2,     false",
+
+            "1.12.3,           true",
+            "1.12.3-beta,      false",
+            "1.12.3+0a,        true",
+            "1.12.3-beta+2,    false",
+
+            "201.3.19,           true",
+            "201.3.19-beta,      false",
+            "201.3.19+0a,        true",
+            "201.3.19-beta+2,    false"
+        )
+        fun anyVersion(version: String, match: Boolean) {
+
+            // [0.0.0 .. *)
+            val range = "^*"
+
+            assertEquals(
+                match,
+                range.asRange().satisfiedBy(version.asVersion()),
+                "'$version' ${if (match) "should" else "should not"} match range '$range'"
+            )
+        }
     }
 }

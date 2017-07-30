@@ -59,7 +59,8 @@ fullVersion
     ;
 
 wildcardVersion
-    : versionPrefix? major=integer (PERIOD minorWildcard=wildcard (PERIOD patchWildcard=wildcard)?)?
+    : anyVersion=wildcard
+    | versionPrefix? major=integer (PERIOD minorWildcard=wildcard (PERIOD patchWildcard=wildcard)?)?
     | versionPrefix? major=integer (PERIOD minor=integer (PERIOD patchWildcard=wildcard)?)?
     | versionPrefix? major=integer (PERIOD minor=integer (PERIOD patch=integer (HYPHEN prerelease)? (PLUS build)?)?)?
     ;

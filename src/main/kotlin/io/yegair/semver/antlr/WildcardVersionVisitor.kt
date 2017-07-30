@@ -35,6 +35,12 @@ internal object WildcardVersionVisitor : SemverBaseVisitor<Version>() {
 
     override fun visitWildcardVersion(ctx: WildcardVersionCtx): Version {
 
+        val anyVersion = ctx.anyVersion?.text
+
+        if (anyVersion != null) {
+            return AnyVersion
+        }
+
         val majorNumber = ctx.major?.text?.toInt() ?: throw IllegalStateException("[major] must be present")
         val minorNumber = ctx.minor?.text?.toInt()
         val minorWildcard = ctx.minorWildcard?.text
