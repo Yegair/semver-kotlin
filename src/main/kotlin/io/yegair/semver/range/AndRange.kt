@@ -1,6 +1,5 @@
 package io.yegair.semver.range
 
-import io.yegair.semver.version.SemanticVersion
 import io.yegair.semver.version.Version
 
 /*
@@ -40,10 +39,26 @@ internal data class AndRange(private val ranges: List<Range>) : Range {
     }
 
     override fun gtr(version: Version): Boolean {
-        return ranges.all { it.gtr(version) }
+        return ranges.any { it.gtr(version) }
     }
 
     override fun ltr(version: Version): Boolean {
-        return ranges.all { it.ltr(version) }
+        return ranges.any { it.ltr(version) }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        return when {
+            this === other -> true
+            other !is AndRange -> false
+            else -> ranges == other.ranges
+        }
+    }
+
+    override fun hashCode(): Int {
+        return ranges.hashCode()
+    }
+
+    override fun toString(): String {
+        return ranges.map { it.toString() }.joinToString(" ")
     }
 }

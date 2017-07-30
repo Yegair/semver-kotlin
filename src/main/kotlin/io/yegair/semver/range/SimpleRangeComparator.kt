@@ -4,6 +4,7 @@ import io.yegair.semver.range.RangeComparator.Result
 import io.yegair.semver.range.RangeComparator.Result.*
 import io.yegair.semver.version.NoPrerelease
 import io.yegair.semver.version.Version
+import io.yegair.semver.version.VersionComparator
 import java.util.*
 
 /*
@@ -39,13 +40,13 @@ import java.util.*
  * @param upper The max exclusive upper bound.
  */
 internal class SimpleRangeComparator(private val lower: Version,
-                                     private val upper: Version): RangeComparator {
+                                     private val upper: Version) : RangeComparator {
 
     override fun compare(version: Version): Result {
 
         val lowerCmp = compareLower(version)
 
-        return when(lowerCmp) {
+        return when (lowerCmp) {
             Greater -> {
                 val upperCmp = compareUpper(version)
                 when (upperCmp) {
@@ -59,48 +60,27 @@ internal class SimpleRangeComparator(private val lower: Version,
 
     private fun compareLower(version: Version): Result {
 
-        if (lower.prerelease == NoPrerelease) {
+        val cmp = VersionComparator.compare(version, lower)
 
-            if (version.prerelease == NoPrerelease) {
-                val cmp = version.compareTo(lower)
-                return when {
-                    cmp < 0 -> Lower
-                    cmp > 0 -> Greater
-                    else -> Satisfied
-                }
-            } else {
-                return Excluded
+        return when (cmp) {
+            VersionComparator.Lower -> Lower
+            VersionComparator.LowerPrerelease -> Lower
+            VersionComparator.LowerBuild -> Satisfied
+            VersionComparator.Equal -> Satisfied
+            VersionComparator.GreaterBuild -> Satisfied
+            VersionComparator.GreaterPrerelease -> Satisfied
+            VersionComparator.Greater -> when (version.prerelease) {
+                NoPrerelease -> Greater
+                else -> Excluded
             }
 
-        } else {
-            if (version.prerelease == NoPrerelease) {
-                val cmp = version.compareTo(lower)
-                return when {
-                    cmp < 0 -> Lower
-                    cmp > 0 -> Greater
-                    else -> Satisfied
-                }
-            } else {
-                if (version.release() == lower.release()) {
-                    val cmp = version.prerelease.compareTo(lower.prerelease)
-                    return when {
-                        cmp < 0 -> Lower
-                        cmp > 0 -> Greater
-                        else -> Satisfied
-                    }
-                } else {
-                    return Excluded
-                }
-            }
+            else -> throw IllegalStateException("unexpected [VersionComparator] result $cmp")
         }
     }
 
     private fun compareUpper(version: Version): Result {
-
-        val cmp = version.release().compareTo(upper)
-
         return when {
-            cmp < 0 -> Lower
+            version < upper -> Lower
             else -> Greater
         }
     }

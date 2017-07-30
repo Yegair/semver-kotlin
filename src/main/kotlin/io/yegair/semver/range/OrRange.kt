@@ -29,21 +29,37 @@ import io.yegair.semver.version.Version
 
 /**
  * A range that is composed of multiple ranges. A version satisfies this range if
- * it satisfies any of the ranges this range is composed of.
+ * it satisfies any of the ranges it is composed of.
  *
  * @author Hauke Jaeger, hauke.jaeger@yegair.io
  */
-internal data class OrRange(private val ranges: List<Range>) : Range {
+internal class OrRange(private val ranges: List<Range>) : Range {
 
     override fun satisfiedBy(version: Version): Boolean {
         return ranges.any { it.satisfiedBy(version) }
     }
 
     override fun gtr(version: Version): Boolean {
-        return ranges.any { it.gtr(version) }
+        return ranges.all { it.gtr(version) }
     }
 
     override fun ltr(version: Version): Boolean {
-        return ranges.any { it.ltr(version) }
+        return ranges.all { it.ltr(version) }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        return when {
+            this === other -> true
+            other !is OrRange -> false
+            else -> ranges == other.ranges
+        }
+    }
+
+    override fun hashCode(): Int {
+        return ranges.hashCode()
+    }
+
+    override fun toString(): String {
+        return ranges.map { it.toString() }.joinToString(" || ")
     }
 }

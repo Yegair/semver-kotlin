@@ -132,39 +132,14 @@ abstract class Version : Comparable<Version> {
     abstract fun ceil(): Version
 
     override fun compareTo(other: Version): Int {
-        return when {
-            major < other.major -> -1
-            major > other.major -> 1
-            else -> when {
-                minor < other.minor -> -1
-                minor > other.minor -> 1
-                else -> when {
-                    patch < other.patch -> -1
-                    patch > other.patch -> 1
-                    else -> when {
-                        prerelease < other.prerelease -> -1
-                        prerelease > other.prerelease -> 1
-                        else -> when {
-                            build < other.build -> -1
-                            build > other.build -> 1
-                            else -> 0
-                        }
-                    }
-                }
-            }
-        }
+        return VersionComparator.compare(this, other)
     }
 
     override fun equals(other: Any?): Boolean {
         return when {
             other === this -> true
             other !is Version -> false
-            major != other.major -> false
-            minor != other.minor -> false
-            patch != other.patch -> false
-            prerelease != other.prerelease -> false
-            build != other.build -> false
-            else -> true
+            else -> VersionComparator.compare(this, other) == VersionComparator.Equal
         }
     }
 
