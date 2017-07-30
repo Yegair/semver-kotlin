@@ -51,4 +51,8 @@ object AnyVersion : Version() {
     override fun floor() = AnyVersion
 
     override fun ceil() = AnyVersion
+
+    override fun toString(): String {
+        return major.toString()
+    }
 }

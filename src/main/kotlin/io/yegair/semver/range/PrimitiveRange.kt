@@ -1,7 +1,6 @@
 package io.yegair.semver.range
 
 import io.yegair.semver.version.Version
-import java.util.*
 
 /*
  * MIT License
@@ -32,67 +31,72 @@ import java.util.*
  *
  * @author Hauke Jaeger, hauke.jaeger@yegair.io
  */
-internal class PrimitiveRange(private val operator: Operator,
-                              private val version: Version) : Range {
+internal class PrimitiveRange(operator: Operator,
+                              version: Version) : Range {
 
-    enum class Operator constructor(private val symbol: String) {
+    private val comparator: RangeComparator = when (operator) {
+        Operator.LT -> LtRangeComparator(version)
+        Operator.LTE -> LteRangeComparator(version)
+        Operator.EQ -> EqRangeComparator(version)
+        Operator.GTE -> GteRangeComparator(version)
+        Operator.GT -> GtRangeComparator(version)
+    }
 
-        LT("<"),
-        LTE("<="),
-        GT(">"),
-        GTE(">="),
-        EQ("=");
-
-        override fun toString(): String {
-            return symbol
-        }
+    enum class Operator {
+        LT,
+        LTE,
+        GT,
+        GTE,
+        EQ
     }
 
     override fun satisfiedBy(version: Version): Boolean {
-        return when (operator) {
-            Operator.LT -> version < this.version
-            Operator.LTE -> version <= this.version
-            Operator.GT -> version > this.version
-            Operator.GTE -> version >= this.version
-            Operator.EQ -> version.compareTo(this.version) == 0
-        }
+
+        return comparator.compare(version) == RangeComparator.Result.Satisfied
+
+//        val cmp = VersionComparator.compare(version, this.version)
+//
+//        return when (operator) {
+//            Operator.LT -> when (cmp) {
+//                VersionComparator.Lower -> when (version.prerelease) {
+//                    NoPrerelease -> true
+//                    else -> false
+//                }
+//                VersionComparator.LowerPrerelease -> when (this.version.prerelease) {
+//                    NoPrerelease -> false
+//                    else -> true
+//                }
+//                VersionComparator.LowerBuild -> true
+//                else -> false
+//            }
+//            Operator.LTE -> version <= this.version
+//            Operator.GT -> version > this.version
+//            Operator.GTE -> version >= this.version
+//            Operator.EQ -> version.compareTo(this.version) == 0
+//        }
     }
 
     override fun gtr(version: Version): Boolean {
-        return when (operator) {
-            Operator.LT -> version >= this.version
-            Operator.LTE -> version > this.version
-            Operator.GT -> false
-            Operator.GTE -> false
-            Operator.EQ -> version > this.version
-        }
+        return comparator.compare(version) == RangeComparator.Result.Greater
     }
 
     override fun ltr(version: Version): Boolean {
-        return when (operator) {
-            Operator.LT -> false
-            Operator.LTE -> false
-            Operator.GT -> version <= this.version
-            Operator.GTE -> version < this.version
-            Operator.EQ -> version < this.version
-        }
+        return comparator.compare(version) == RangeComparator.Result.Lower
     }
 
     override fun equals(other: Any?): Boolean {
         return when {
             other === this -> true
             other !is PrimitiveRange -> false
-            operator != other.operator -> false
-            version != other.version -> false
-            else -> true
+            else -> comparator == other.comparator
         }
     }
 
     override fun hashCode(): Int {
-        return Objects.hash(operator, version)
+        return comparator.hashCode()
     }
 
     override fun toString(): String {
-        return "$operator$version"
+        return comparator.toString()
     }
 }
