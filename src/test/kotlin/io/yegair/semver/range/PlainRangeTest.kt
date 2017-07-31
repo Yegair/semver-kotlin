@@ -1,9 +1,6 @@
 package io.yegair.semver.range
 
-import io.yegair.semver.version.VersionNumber
-import io.yegair.semver.version.Wildcard
-import io.yegair.semver.version.WildcardVersion
-import io.yegair.semver.version.asVersion
+import io.yegair.semver.version.*
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -61,6 +58,14 @@ internal class PlainRangeTest {
                     minor = Wildcard
                 )),
                 "2.*".asRange()
+            )
+        }
+
+        @Test
+        fun anyVersion() {
+            assertEquals(
+                PlainRange(AnyVersion),
+                "*".asRange()
             )
         }
     }
@@ -151,6 +156,45 @@ internal class PlainRangeTest {
 
             // [1.2.0 .. 1.3.0)
             val range = "1.2.*"
+
+            assertEquals(
+                match,
+                range.asRange().satisfiedBy(version.asVersion()),
+                "'$version' ${if (match) "should" else "should not"} match range '$range'"
+            )
+        }
+
+        @ParameterizedTest
+        @CsvSource(
+            "0.0.0,           true",
+            "0.0.0+42,        true",
+            "0.0.0-GA.4,      false",
+            "0.0.0-GA.4+11,   false",
+
+            "0.0.1,           true",
+            "0.0.1-RC.0,      false",
+            "0.0.1+0a,        true",
+            "0.0.1-RC.0+00f,  false",
+
+            "0.12.0,          true",
+            "0.12.0-beta,     false",
+            "0.12.0+0a,       true",
+            "0.12.0-beta+2,   false",
+
+            "1.0.1,           true",
+            "1.0.1-beta,      false",
+            "1.0.1+0a,        true",
+            "1.0.1-beta+2,    false",
+
+            "4042.2.1,        true",
+            "4042.2.1-beta,   false",
+            "4042.2.1+0a,     true",
+            "4042.2.1-beta+2, false"
+        )
+        fun anyVersion(version: String, match: Boolean) {
+
+            // [0.0.0 .. *)
+            val range = "*"
 
             assertEquals(
                 match,
