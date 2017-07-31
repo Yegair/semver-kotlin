@@ -1,6 +1,7 @@
 package io.yegair.semver.version
 
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
@@ -24,15 +25,9 @@ internal class SemanticVersionTest {
 
         @Test
         fun missingPatch() {
-
-            // given
-            val expression = "5.7"
-
-            // when
-            val version = expression.asVersion()
-
-            // then
-            assertEquals(SemanticVersion(5, 7), "5.7".asVersion())
+            assertThrows(InvalidVersionException::class.java, {
+                "5.7".asVersion()
+            })
         }
 
         @Test

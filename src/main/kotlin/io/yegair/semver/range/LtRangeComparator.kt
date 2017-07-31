@@ -42,14 +42,14 @@ internal class LtRangeComparator(private val upper: Version) : RangeComparator {
     override fun compare(version: Version): Result {
 
         return when (upper) {
-            is AnyVersion -> when (version.prerelease) {
+            AnyVersion -> when (version.prerelease) {
                 NoPrerelease -> Result.Satisfied
                 else -> Result.Excluded
             }
             else -> {
                 val cmp = VersionComparator.compare(version, upper)
 
-                return when (cmp) {
+                when (cmp) {
                     VersionComparator.Lower -> when (version.prerelease) {
                         NoPrerelease -> Result.Satisfied
                         else -> Result.Excluded

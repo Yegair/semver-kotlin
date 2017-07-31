@@ -1,7 +1,11 @@
-package io.yegair.semver.version.antlr
+package io.yegair.semver.antlr
 
-import io.yegair.semver.antlr.*
-import io.yegair.semver.version.Version
+import io.yegair.semver.antlr.CompositeRangeVisitor
+import io.yegair.semver.antlr.ParserSupport
+import io.yegair.semver.antlr.SemverLexer
+import io.yegair.semver.antlr.SemverParser
+import io.yegair.semver.range.Range
+import org.antlr.v4.runtime.ANTLRErrorListener
 import org.antlr.v4.runtime.CharStreams
 import org.antlr.v4.runtime.CommonTokenStream
 import org.antlr.v4.runtime.Token
@@ -31,15 +35,15 @@ import org.antlr.v4.runtime.Token
  */
 
 /**
- * Parses wildcard versions using ANTLR.
+ * Parses range expressions using ANTLR.
  *
  * @author Hauke Jaeger, hauke.jaeger@yegair.io
  */
-internal object ANTLRWildcardVersionParser: ParserSupport() {
+internal class ANTLRRangeParser: ParserSupport() {
 
-    fun parse(value: String): Version {
-        val parser = parser(value)
-        val context = parser.wildcardVersion()
-        return context.accept(WildcardVersionVisitor)
+    fun parse(expression: String): Range {
+        val parser = parser(expression)
+        val context = parser.compositeRange()
+        return context.accept(CompositeRangeVisitor)
     }
 }

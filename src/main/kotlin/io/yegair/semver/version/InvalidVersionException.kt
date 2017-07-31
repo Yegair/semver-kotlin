@@ -1,7 +1,4 @@
-package io.yegair.semver.range
-
-import io.yegair.semver.antlr.ANTLRRangeParser
-import io.yegair.semver.version.Version
+package io.yegair.semver.version
 
 /*
  * MIT License
@@ -28,36 +25,8 @@ import io.yegair.semver.version.Version
  */
 
 /**
- * Represents a semantic version range expression.
+ * Thrown when a [String] can not be parsed to a [Version].
  *
  * @author Hauke Jaeger, hauke.jaeger@yegair.io
  */
-interface Range {
-
-    /**
-     * Determines whether the given version satisfies this version range.
-     */
-    fun satisfiedBy(version: Version): Boolean
-
-    /**
-     * Return `true` if version is greater than all the versions possible in the range.
-     */
-    fun gtr(version: Version): Boolean
-
-    /**
-     * Return `true` if version is less than all the versions possible in the range.
-     */
-    fun ltr(version: Version): Boolean
-
-    companion object {
-
-        /**
-         * Parses the given expression into a [Range]
-         */
-        fun parse(expression: String): Range {
-            return ANTLRRangeParser().parse(expression)
-        }
-    }
-}
-
-fun String.asRange(): Range = Range.parse(this)
+class InvalidVersionException(message: String, cause: Throwable?): IllegalArgumentException(message, cause)

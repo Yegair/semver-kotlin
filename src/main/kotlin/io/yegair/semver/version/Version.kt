@@ -1,6 +1,6 @@
 package io.yegair.semver.version
 
-import io.yegair.semver.version.antlr.ANTLRVersionParser
+import io.yegair.semver.antlr.ANTLRVersionParser
 import java.util.*
 
 /*
@@ -139,7 +139,12 @@ abstract class Version : Comparable<Version> {
         return when {
             other === this -> true
             other !is Version -> false
-            else -> VersionComparator.compare(this, other) == VersionComparator.Equal
+            major != other.major -> false
+            minor != other.minor -> false
+            patch != other.patch -> false
+            prerelease != other.prerelease -> false
+            build != other.build -> false
+            else -> true
         }
     }
 

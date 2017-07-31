@@ -1,12 +1,12 @@
-package io.yegair.semver.version.antlr
+package io.yegair.semver.antlr
 
 import io.yegair.semver.antlr.SemverLexer
 import io.yegair.semver.antlr.SemverParser
 import io.yegair.semver.antlr.FullVersionVisitor
+import io.yegair.semver.antlr.ParserSupport
+import io.yegair.semver.version.InvalidVersionException
 import io.yegair.semver.version.Version
-import org.antlr.v4.runtime.CharStreams
-import org.antlr.v4.runtime.CommonTokenStream
-import org.antlr.v4.runtime.Token
+import org.antlr.v4.runtime.*
 
 /*
  * MIT License
@@ -37,35 +37,32 @@ import org.antlr.v4.runtime.Token
  *
  * @author Hauke Jaeger, hauke.jaeger@yegair.io
  */
-internal object ANTLRVersionParser {
+internal object ANTLRVersionParser: ParserSupport() {
 
     fun parse(value: String): Version {
-//        debug(value)
-        val parser = parser(value)
+        val parser = versionParser(value)
         val context = parser.fullVersion()
         return context.accept(FullVersionVisitor)
     }
 
-    private fun parser(expression: String) =
-        SemverParser(tokenStream(expression))
+    private fun versionParser(value: String): SemverParser {
+        val parser = parser(value)
 
-    private fun tokenStream(expression: String) =
-        CommonTokenStream(lexer(expression))
+        parser.removeErrorListeners()
+        parser.addErrorListener(object: BaseErrorListener() {
 
-    private fun lexer(expression: String) =
-        SemverLexer(charStream(expression))
+            override fun syntaxError(recognizer: Recognizer<*, *>?,
+                                     offendingSymbol: Any?,
+                                     line: Int,
+                                     charPositionInLine: Int,
+                                     msg: String?,
+                                     e: RecognitionException?) {
 
-    private fun charStream(expression: String) =
-        CharStreams.fromString(expression)
+                throw InvalidVersionException("error when parsing version '$value'\n  ${msg ?: ""}", e)
+            }
 
-    private fun debug(expression: String) {
-        val lexer = lexer(expression)
+        })
 
-        var token: Token = lexer.nextToken()
-
-        while (token.type != Token.EOF) {
-            println(token)
-            token = lexer.nextToken()
-        }
+        return parser
     }
 }

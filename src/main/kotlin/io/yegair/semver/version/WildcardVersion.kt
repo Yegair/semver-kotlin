@@ -2,7 +2,7 @@ package io.yegair.semver.version
 
 import io.yegair.semver.version.VersionNumber.Companion.One
 import io.yegair.semver.version.VersionNumber.Companion.Zero
-import io.yegair.semver.version.antlr.ANTLRWildcardVersionParser
+import io.yegair.semver.antlr.ANTLRWildcardVersionParser
 
 /*
  * MIT License

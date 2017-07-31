@@ -33,23 +33,11 @@ import org.antlr.v4.runtime.CommonTokenStream
  *
  * @author Hauke Jaeger, hauke.jaeger@yegair.io
  */
-internal object ANTLRPrereleaseParser {
+internal object ANTLRPrereleaseParser : ParserSupport() {
 
     fun parse(expression: String): Prerelease {
         val parser = parser(expression)
         val context = parser.prerelease()
         return context.accept(PrereleaseVisitor)
     }
-
-    private fun parser(expression: String) =
-        SemverParser(tokenStream(expression))
-
-    private fun tokenStream(expression: String) =
-        CommonTokenStream(lexer(expression))
-
-    private fun lexer(expression: String) =
-        SemverLexer(charStream(expression))
-
-    private fun charStream(expression: String) =
-        CharStreams.fromString(expression)
 }

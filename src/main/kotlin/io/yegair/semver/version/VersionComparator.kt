@@ -75,8 +75,6 @@ object VersionComparator : Comparator<Version> {
             left === right -> Equal
             left == null -> Lower
             right == null -> Greater
-//            left is AnyVersion -> Equal
-//            right is AnyVersion -> Equal
             else -> safeCompare(left, right)
         }
     }

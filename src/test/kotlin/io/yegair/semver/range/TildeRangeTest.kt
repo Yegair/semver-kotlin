@@ -54,7 +54,7 @@ internal class TildeRangeTest {
             "3.0.23-4.beta,   true",
             "3.0.23-12.beta,  true",
             "3.0.23-3.beta,   false",
-            "3.0.23-alpha.2,  false",
+            "3.0.23-alpha.2,  true",
             "3.0.23-3.alpha,  false",
             "3.0.23-4.alpha,  false",
             "3.0.23-5.alpha,  true",

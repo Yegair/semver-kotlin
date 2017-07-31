@@ -31,31 +31,20 @@ package io.yegair.semver.version
  */
 sealed class PrereleaseName: Comparable<PrereleaseName> {
 
-    companion object {
-
-        fun of(value: String?) : PrereleaseName {
-            return when (value?.trim()) {
-                null -> NoPrereleaseName
-                "" -> NoPrereleaseName
-                else -> StringPrereleaseName(value)
-            }
-        }
-    }
-}
-
-class StringPrereleaseName(private val value: String) : PrereleaseName() {
+    abstract val value: String
 
     override fun compareTo(other: PrereleaseName): Int {
-        return when (other) {
-            is StringPrereleaseName -> value.compareTo(other.value)
-            is NoPrereleaseName -> -1
-        }
+        return value.compareTo(other.value)
+//        return when (other) {
+//            is StringPrereleaseName -> value.compareTo(other.value)
+//            is NoPrereleaseName -> -1
+//        }
     }
 
     override fun equals(other: Any?): Boolean {
         return when {
             other === this -> true
-            other !is StringPrereleaseName -> false
+            other !is PrereleaseName -> false
             else -> value == other.value
         }
     }
@@ -67,18 +56,59 @@ class StringPrereleaseName(private val value: String) : PrereleaseName() {
     override fun toString(): String {
         return value
     }
+
+    companion object {
+
+        fun of(value: String?) : PrereleaseName {
+
+            val normalized = value?.trim() ?: ""
+
+            return when (normalized) {
+                "" -> NoPrereleaseName
+                else -> StringPrereleaseName(normalized)
+            }
+        }
+    }
+}
+
+private class StringPrereleaseName(override val value: String) : PrereleaseName() {
+
+//    override fun compareTo(other: PrereleaseName): Int {
+//        return when (other) {
+//            is StringPrereleaseName -> value.compareTo(other.value)
+//            is NoPrereleaseName -> -1
+//        }
+//    }
+//
+//    override fun equals(other: Any?): Boolean {
+//        return when {
+//            other === this -> true
+//            other !is StringPrereleaseName -> false
+//            else -> value == other.value
+//        }
+//    }
+//
+//    override fun hashCode(): Int {
+//        return value.hashCode()
+//    }
+//
+//    override fun toString(): String {
+//        return value
+//    }
 }
 
 object NoPrereleaseName : PrereleaseName() {
 
-    override fun compareTo(other: PrereleaseName): Int {
-        return when (other) {
-            is NoPrereleaseName -> 0
-            else -> -other.compareTo(this)
-        }
-    }
+    override val value = ""
 
-    override fun toString(): String {
-        return ""
-    }
+//    override fun compareTo(other: PrereleaseName): Int {
+//        return when (other) {
+//            is NoPrereleaseName -> 0
+//            else -> -other.compareTo(this)
+//        }
+//    }
+//
+//    override fun toString(): String {
+//        return ""
+//    }
 }

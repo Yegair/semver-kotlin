@@ -51,7 +51,7 @@ class IntPrereleaseVersion(private val value: Int) : PrereleaseVersion() {
     override fun compareTo(other: PrereleaseVersion): Int {
         return when (other) {
             is IntPrereleaseVersion -> value.compareTo(other.value)
-            is NoPrereleaseVersion -> -1
+            is NoPrereleaseVersion -> 1
         }
     }
 

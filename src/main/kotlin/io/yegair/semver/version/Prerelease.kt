@@ -39,29 +39,34 @@ sealed class Prerelease : Comparable<Prerelease> {
     abstract val suffix: PrereleaseName
 
     override fun compareTo(other: Prerelease): Int {
-        return when {
-            other === this -> 0
-            else -> {
-                val prefixCmp = prefix.compareTo(other.prefix)
-                if (prefixCmp == 0) {
-                    val versionCmp = version.compareTo(other.version)
-                    if (versionCmp == 0) {
-                        suffix.compareTo(other.suffix)
-                    } else {
-                        versionCmp
-                    }
-                } else {
-                    prefixCmp
-                }
-            }
-        }
+        return PrereleaseComparator.compare(this, other)
+
+//        return when {
+//            other === this -> 0
+//            else -> {
+//                val prefixCmp = prefix.compareTo(other.prefix)
+//                if (prefixCmp == 0) {
+//                    val versionCmp = version.compareTo(other.version)
+//                    if (versionCmp == 0) {
+//                        suffix.compareTo(other.suffix)
+//                    } else {
+//                        versionCmp
+//                    }
+//                } else {
+//                    prefixCmp
+//                }
+//            }
+//        }
     }
 
     override fun equals(other: Any?): Boolean {
         return when {
             other === this -> true
             other !is Prerelease -> false
-            else -> compareTo(other) == 0
+            prefix != other.prefix -> false
+            version != other.version -> false
+            suffix != other.suffix -> false
+            else -> true
         }
     }
 
@@ -87,9 +92,12 @@ sealed class Prerelease : Comparable<Prerelease> {
         }
 
         fun parse(expression: String?): Prerelease {
-            return when (expression) {
-                null -> NoPrerelease
-                else -> ANTLRPrereleaseParser.parse(expression)
+
+            val normalized = expression?.trim() ?: ""
+
+            return when (normalized) {
+                "" -> NoPrerelease
+                else -> ANTLRPrereleaseParser.parse(normalized)
             }
         }
     }

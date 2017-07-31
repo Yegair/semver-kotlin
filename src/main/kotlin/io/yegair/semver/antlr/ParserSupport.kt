@@ -1,7 +1,9 @@
 package io.yegair.semver.antlr
 
-import org.antlr.v4.runtime.CharStreams
-import org.antlr.v4.runtime.CommonTokenStream
+import org.antlr.v4.runtime.*
+import org.antlr.v4.runtime.atn.ATNConfigSet
+import org.antlr.v4.runtime.dfa.DFA
+import java.util.*
 
 /*
  * MIT License

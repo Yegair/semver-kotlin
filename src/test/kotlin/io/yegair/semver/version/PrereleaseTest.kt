@@ -6,6 +6,8 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.CsvSource
 
 /**
  * Unit test for [Prerelease]
@@ -187,6 +189,30 @@ internal class PrereleaseTest {
 
             assertTrue {
                 (left.compareTo(right) == 0) && (left == right)
+            }
+        }
+
+        @ParameterizedTest
+        @CsvSource(
+            "0.9.57-RC.0       , > , 0.9.57-RC",
+            "0.9.57-RC         , < , 0.9.57-RC.1",
+            "                  , > , M4.beta.13.stable",
+            "M4.beta.13.stable , < , "
+        )
+        fun compare(left:String?, expected:String?, right:String?) {
+
+            val cmp = (left ?: "").asPrerelease().compareTo((right ?: "").asPrerelease())
+
+            when (expected?.trim() ?: "") {
+                ">" -> {
+                    assertTrue(cmp > 0, "'${left ?: ""}' should be greater than '${right ?: ""}'")
+                }
+                "<" -> {
+                    assertTrue(cmp < 0, "'${left ?: ""}' should be lower than '${right ?: ""}'")
+                }
+                else -> {
+                    assertTrue(cmp == 0, "'${left ?: ""}' should compare equal to '${right ?: ""}'")
+                }
             }
         }
     }

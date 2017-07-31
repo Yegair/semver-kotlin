@@ -1,6 +1,7 @@
 package io.yegair.semver.range
 
 import io.yegair.semver.range.RangeComparator.Result
+import io.yegair.semver.version.AnyVersion
 import io.yegair.semver.version.NoPrerelease
 import io.yegair.semver.version.Version
 import io.yegair.semver.version.VersionComparator
@@ -40,20 +41,30 @@ internal class LteRangeComparator(private val upper: Version) : RangeComparator 
 
     override fun compare(version: Version): Result {
 
-        val cmp = VersionComparator.compare(version, upper)
-
-        return when (cmp) {
-            VersionComparator.Lower -> when (version.prerelease) {
+        return when (upper) {
+            AnyVersion -> when (version.prerelease) {
                 NoPrerelease -> Result.Satisfied
                 else -> Result.Excluded
             }
-            VersionComparator.LowerPrerelease -> when (upper.prerelease) {
-                NoPrerelease -> Result.Excluded
-                else -> Result.Satisfied
+            else -> {
+
+                val cmp = VersionComparator.compare(version, upper)
+
+                when (cmp) {
+                    VersionComparator.Lower -> when (version.prerelease) {
+                        NoPrerelease -> Result.Satisfied
+                        else -> Result.Excluded
+                    }
+                    VersionComparator.LowerPrerelease -> when (upper.prerelease) {
+                        NoPrerelease -> Result.Excluded
+                        else -> Result.Satisfied
+                    }
+                    VersionComparator.LowerBuild -> Result.Satisfied
+                    VersionComparator.Equal -> Result.Satisfied
+                    VersionComparator.GreaterBuild -> Result.Satisfied
+                    else -> Result.Greater
+                }
             }
-            VersionComparator.LowerBuild -> Result.Satisfied
-            VersionComparator.Equal -> Result.Satisfied
-            else -> Result.Greater
         }
     }
 

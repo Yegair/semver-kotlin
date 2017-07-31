@@ -1,9 +1,7 @@
-package io.yegair.semver.range.antlr
+package io.yegair.semver.antlr
 
-import io.yegair.semver.antlr.CompositeRangeVisitor
-import io.yegair.semver.antlr.SemverLexer
-import io.yegair.semver.antlr.SemverParser
-import io.yegair.semver.range.Range
+import io.yegair.semver.antlr.*
+import io.yegair.semver.version.Version
 import org.antlr.v4.runtime.CharStreams
 import org.antlr.v4.runtime.CommonTokenStream
 import org.antlr.v4.runtime.Token
@@ -33,41 +31,15 @@ import org.antlr.v4.runtime.Token
  */
 
 /**
- * Parses range expressions using ANTLR.
+ * Parses wildcard versions using ANTLR.
  *
  * @author Hauke Jaeger, hauke.jaeger@yegair.io
  */
-internal class ANTLRRangeParser {
+internal object ANTLRWildcardVersionParser: ParserSupport() {
 
-    fun parse(expression: String): Range {
-        // TODO: remove debugging
-//        debug(expression)
-
-        val parser = parser(expression)
-        val context = parser.compositeRange()
-        return context.accept(CompositeRangeVisitor)
-    }
-
-    private fun parser(expression: String) =
-        SemverParser(tokenStream(expression))
-
-    private fun tokenStream(expression: String) =
-        CommonTokenStream(lexer(expression))
-
-    private fun lexer(expression: String) =
-        SemverLexer(charStream(expression))
-
-    private fun charStream(expression: String) =
-        CharStreams.fromString(expression)
-
-    private fun debug(expression: String) {
-        val lexer = lexer(expression)
-
-        var token: Token = lexer.nextToken()
-
-        while (token.type != Token.EOF) {
-            println(token)
-            token = lexer.nextToken()
-        }
+    fun parse(value: String): Version {
+        val parser = parser(value)
+        val context = parser.wildcardVersion()
+        return context.accept(WildcardVersionVisitor)
     }
 }
