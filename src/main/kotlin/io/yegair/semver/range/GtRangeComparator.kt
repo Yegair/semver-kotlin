@@ -4,6 +4,7 @@ import io.yegair.semver.range.RangeComparator.Result
 import io.yegair.semver.version.NoPrerelease
 import io.yegair.semver.version.Version
 import io.yegair.semver.version.VersionComparator
+import io.yegair.semver.version.WildcardVersion
 
 /*
  * MIT License
@@ -36,7 +37,18 @@ import io.yegair.semver.version.VersionComparator
  *
  * @param lower Exclusive lower bound versions are compared to.
  */
-internal class GtRangeComparator(private val lower: Version) : RangeComparator {
+internal class GtRangeComparator(version: Version) : RangeComparator {
+
+    // TODO: this is ugly, refactor me
+    private val wildcard = when (version) {
+        is WildcardVersion -> true
+        else -> false
+    }
+
+    private val lower = when (version) {
+        is WildcardVersion -> version.ceil()
+        else -> version
+    }
 
     override fun compare(version: Version): Result {
 
@@ -51,6 +63,19 @@ internal class GtRangeComparator(private val lower: Version) : RangeComparator {
                 NoPrerelease -> Result.Excluded
                 else -> Result.Satisfied
             }
+
+        // TODO: this is ugly, refactor me
+            VersionComparator.Equal -> when (wildcard) {
+                true -> Result.Satisfied
+                else -> Result.Lower
+            }
+
+        // TODO: this is ugly, refactor me
+            VersionComparator.GreaterBuild -> when (wildcard) {
+                true -> Result.Satisfied
+                else -> Result.Lower
+            }
+
             else -> Result.Lower
         }
     }
@@ -68,6 +93,6 @@ internal class GtRangeComparator(private val lower: Version) : RangeComparator {
     }
 
     override fun toString(): String {
-        return ">$lower"
+        return "[$lower .. *)"
     }
 }

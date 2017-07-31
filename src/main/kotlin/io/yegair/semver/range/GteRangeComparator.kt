@@ -52,6 +52,7 @@ internal class GteRangeComparator(private val lower: Version) : RangeComparator 
                 else -> Result.Satisfied
             }
             VersionComparator.Equal -> Result.Satisfied
+            VersionComparator.GreaterBuild -> Result.Satisfied
             else -> Result.Lower
         }
     }
@@ -69,6 +70,6 @@ internal class GteRangeComparator(private val lower: Version) : RangeComparator 
     }
 
     override fun toString(): String {
-        return ">=$lower"
+        return "[$lower .. *)"
     }
 }

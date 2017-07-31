@@ -37,7 +37,9 @@ import io.yegair.semver.version.VersionComparator
  *
  * @param upper Inclusive upper bound versions are compared to.
  */
-internal class LteRangeComparator(private val upper: Version) : RangeComparator {
+internal class LteRangeComparator(upper: Version) : RangeComparator {
+
+    private val upper = upper.floor()
 
     override fun compare(version: Version): Result {
 
