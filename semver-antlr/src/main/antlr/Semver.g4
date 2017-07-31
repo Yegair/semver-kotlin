@@ -104,6 +104,7 @@ noInts
 
 noInt
     : (HYPHEN | digit)* letter+ (HYPHEN | digit | letter)*
+    | (DIGIT_0 DIGIT_0+)
     ;
 
 digit

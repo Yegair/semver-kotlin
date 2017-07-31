@@ -1,8 +1,8 @@
 package io.yegair.semver.antlr
 
+import io.yegair.semver.version.InvalidVersionException
 import io.yegair.semver.version.Prerelease
-import org.antlr.v4.runtime.CharStreams
-import org.antlr.v4.runtime.CommonTokenStream
+import org.antlr.v4.runtime.*
 
 /*
  * MIT License
@@ -36,8 +36,30 @@ import org.antlr.v4.runtime.CommonTokenStream
 internal object ANTLRPrereleaseParser : ParserSupport() {
 
     fun parse(expression: String): Prerelease {
-        val parser = parser(expression)
+        val parser = prereleaseParser(expression)
         val context = parser.prerelease()
         return context.accept(PrereleaseVisitor)
+    }
+
+
+    private fun prereleaseParser(value: String): SemverParser {
+        val parser = parser(value)
+
+        parser.removeErrorListeners()
+        parser.addErrorListener(object: BaseErrorListener() {
+
+            override fun syntaxError(recognizer: Recognizer<*, *>?,
+                                     offendingSymbol: Any?,
+                                     line: Int,
+                                     charPositionInLine: Int,
+                                     msg: String?,
+                                     e: RecognitionException?) {
+
+                throw InvalidVersionException("error when parsing prerelease '$value'\n  ${msg ?: ""}", e)
+            }
+
+        })
+
+        return parser
     }
 }
