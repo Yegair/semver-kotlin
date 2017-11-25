@@ -38,26 +38,14 @@ sealed class Prerelease : Comparable<Prerelease> {
     abstract val version: PrereleaseVersion
     abstract val suffix: PrereleaseName
 
-    override fun compareTo(other: Prerelease): Int {
-        return PrereleaseComparator.compare(this, other)
+    fun next(): Prerelease =
+        PrereleaseIdentifier(
+            prefix = prefix,
+            version = version + 1,
+            suffix = suffix
+        )
 
-//        return when {
-//            other === this -> 0
-//            else -> {
-//                val prefixCmp = prefix.compareTo(other.prefix)
-//                if (prefixCmp == 0) {
-//                    val versionCmp = version.compareTo(other.version)
-//                    if (versionCmp == 0) {
-//                        suffix.compareTo(other.suffix)
-//                    } else {
-//                        versionCmp
-//                    }
-//                } else {
-//                    prefixCmp
-//                }
-//            }
-//        }
-    }
+    override fun compareTo(other: Prerelease) = PrereleaseComparator.compare(this, other)
 
     override fun equals(other: Any?): Boolean {
         return when {

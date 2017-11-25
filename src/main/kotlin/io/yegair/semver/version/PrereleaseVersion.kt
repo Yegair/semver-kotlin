@@ -31,6 +31,8 @@ package io.yegair.semver.version
  */
 sealed class PrereleaseVersion : Comparable<PrereleaseVersion> {
 
+    abstract operator fun plus(increment: Int): PrereleaseVersion
+
     companion object {
 
         fun of (value: Int?): PrereleaseVersion {
@@ -47,6 +49,8 @@ sealed class PrereleaseVersion : Comparable<PrereleaseVersion> {
  * [PrereleaseVersion] with an integer value
  */
 class IntPrereleaseVersion(private val value: Int) : PrereleaseVersion() {
+
+    override fun plus(increment: Int) = IntPrereleaseVersion(value + increment)
 
     override fun compareTo(other: PrereleaseVersion): Int {
         return when (other) {
@@ -76,6 +80,8 @@ class IntPrereleaseVersion(private val value: Int) : PrereleaseVersion() {
  * [PrereleaseVersion] that is used as a placeholder when no prerelease version is present.
  */
 object NoPrereleaseVersion : PrereleaseVersion() {
+
+    override fun plus(increment: Int) = IntPrereleaseVersion(0)
 
     override fun compareTo(other: PrereleaseVersion): Int {
         return when (other) {

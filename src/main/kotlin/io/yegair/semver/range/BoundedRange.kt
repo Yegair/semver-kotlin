@@ -1,6 +1,5 @@
 package io.yegair.semver.range
 
-import io.yegair.semver.version.SemanticVersion
 import io.yegair.semver.version.Version
 
 /*
@@ -32,22 +31,5 @@ import io.yegair.semver.version.Version
  *
  * @author Hauke Jaeger, hauke.jaeger@yegair.io
  */
-internal data class BoundedRange(private val lower: Version,
-                                 private val upper: Version) : Range {
-
-    override fun satisfiedBy(version: Version): Boolean {
-        return version in lower..upper
-    }
-
-    override fun gtr(version: Version): Boolean {
-        return version > upper
-    }
-
-    override fun ltr(version: Version): Boolean {
-        return version < lower
-    }
-
-    override fun toString(): String {
-        return "[$lower .. $upper]"
-    }
-}
+internal class BoundedRange(lower: Version,
+                            upper: Version) : RangeSupport(BoundedRangeComparator(lower, upper))

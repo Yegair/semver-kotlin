@@ -98,6 +98,18 @@ internal class SemanticVersion(override val major: VersionNumber = NoVersionNumb
         )
     }
 
+    override fun next() =
+        when (prerelease) {
+            NoPrerelease -> nextPatch()
+            else -> SemanticVersion(
+                major = major,
+                minor = minor,
+                patch = patch,
+                prerelease = prerelease.next()
+            )
+        }
+
+
     /**
      * Creates a new version with version numbers that semantically refer to the next breaking change.
      * ```

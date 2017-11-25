@@ -80,6 +80,11 @@ abstract class Version : Comparable<Version> {
     abstract fun nextPatch(): Version
 
     /**
+     * Resolves the next smallest increment for this version.
+     */
+    abstract fun next(): Version
+
+    /**
      * Creates a new version with version numbers that semantically refer to the next breaking change.
      *
      * ```

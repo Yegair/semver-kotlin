@@ -114,19 +114,171 @@ internal class BoundedRangeTest {
 
         @ParameterizedTest
         @CsvSource(
+            "0.0.0,           false",
+            "0.0.0+42,        false",
+            "0.0.0-M9.2,      false",
+            "0.0.0-M9.2+3,    false",
+
+            "0.0.1,           false",
+            "0.0.1+42,        false",
+            "0.0.1-M9.2,      false",
+            "0.0.1-M9.2+3,    false",
+
+            "0.0.2,           true",
+            "0.0.2+42,        true",
+            "0.0.2-M9.2,      false",
+            "0.0.2-M9.2+3,    false",
+
+            "0.9.12,          true",
+            "0.9.12+42,       true",
+            "0.9.12-M9.2,     false",
+            "0.9.12-M9.2+3,   false",
+
+            "1.2.8,           true",
+            "1.2.8+42,        true",
+            "1.2.8-M9.2,      false",
+            "1.2.8-M9.2+3,    false",
+
+            "1.2.9,           true",
+            "1.2.9+42,        true",
+            "1.2.9-M9.2,      false",
+            "1.2.9-M9.2+3,    false",
+
+            "1.2.10,          false",
+            "1.2.10+42,       false",
+            "1.2.10-M9.2,     false",
+            "1.2.10-M9.2+3,   false",
+
+            "1.3.0,           false",
+            "1.3.0+42,        false",
+            "1.3.0-M9.2,      false",
+            "1.3.0-M9.2+3,    false",
+
+            "2.0.0,           false"
+        )
+        fun full(version: String, match: Boolean) {
+
+            // [0.0.2 .. 1.2.10)
+            val range = "0.0.2 - 1.2.9"
+
+            assertEquals(
+                match,
+                range.asRange().satisfiedBy(version.asVersion()),
+                "'$version' ${if (match) "should" else "should not"} match range '$range'"
+            )
+        }
+
+        @ParameterizedTest
+        @CsvSource(
+            "0.0.0,             false",
+            "0.0.0+42,          false",
+            "0.0.0-beta.4,      false",
+            "0.0.0-beta.4+3,    false",
+            "0.0.0-beta.5,      false",
+            "0.0.0-beta.5+3,    false",
+
+            "1.0.1,             false",
+            "1.0.1+42,          false",
+            "1.0.1-beta.3,      false",
+            "1.0.1-beta.3+3,    false",
+            "1.0.1-beta.4,      false",
+            "1.0.1-beta.4+3,    false",
+            "1.0.1-beta.5,      false",
+            "1.0.1-beta.5+3,    false",
+
+            "0.0.1,           false",
+            "0.0.1+42,        false",
+            "0.0.1-M9.2,      false",
+            "0.0.1-M9.2+3,    false",
+
+            "0.0.2,           true",
+            "0.0.2+42,        true",
+            "0.0.2-M9.2,      false",
+            "0.0.2-M9.2+3,    false",
+
+            "0.9.12,          true",
+            "0.9.12+42,       true",
+            "0.9.12-M9.2,     false",
+            "0.9.12-M9.2+3,   false",
+
+            "1.2.8,           true",
+            "1.2.8+42,        true",
+            "1.2.8-M9.2,      false",
+            "1.2.8-M9.2+3,    false",
+
+            "1.2.9,           true",
+            "1.2.9+42,        true",
+            "1.2.9-M9.2,      false",
+            "1.2.9-M9.2+3,    false",
+
+            "1.2.10,          false",
+            "1.2.10+42,       false",
+            "1.2.10-M9.2,     false",
+            "1.2.10-M9.2+3,   false",
+
+            "1.3.0,           false",
+            "1.3.0+42,        false",
+            "1.3.0-M9.2,      false",
+            "1.3.0-M9.2+3,    false",
+
+            "2.0.0,           false"
+        )
+        fun prerelease(version: String, match: Boolean) {
+
+            // [1.0.2-beta.4 .. 1.1.0-10.ALPHA)
+            val range = "1.0.2-beta.4 - 1.1.0-9.ALPHA"
+
+            assertEquals(
+                match,
+                range.asRange().satisfiedBy(version.asVersion()),
+                "'$version' ${if (match) "should" else "should not"} match range '$range'"
+            )
+        }
+
+        @ParameterizedTest
+        @CsvSource(
             "3.0.0,           true",
-            "2.9.9,           false",
-            "3.99.99,         true",
-            "3.99.99-beta.99, false",
-            "3.99.99+2,       true",
-            "4.0.0,           false",
-            "4.0.0+43,        false",
-            "4.0.0-beta.1,    false"
-        )
-        fun partialNoMinorNoPatch(version: String, match: Boolean) {
+            "3.0.0+42,        true",
+            "3.0.0-M9.2,      false",
+            "3.0.0-M9.2+3,    false",
 
-            // [3.0.0 .. 4.0.0)
-            val range = "3"
+            "3.0.3,           true",
+            "3.0.3+42,        true",
+            "3.0.3-M9.2,      false",
+            "3.0.3-M9.2+3,    false",
+
+            "3.7.3,           true",
+            "3.7.3+42,        true",
+            "3.7.3-M9.2,      false",
+            "3.7.3-M9.2+3,    false",
+
+            "4.2.0,           true",
+            "4.2.0+42,        true",
+            "4.2.0-M9.2,      false",
+            "4.2.0-M9.2+3,    false",
+
+            "4.9.99,          true",
+            "4.9.99+42,       true",
+            "4.9.99-M9.2,     false",
+            "4.9.99-M9.2+3,   false",
+
+            "5.0.0,           false",
+            "5.0.0+42,        false",
+            "5.0.0-M9.2,      false",
+            "5.0.0-M9.2+3,    false",
+
+            "5.0.1,           false",
+
+            "5.1.0,           false",
+
+            "5.1.1,           false",
+
+            "6.0.0,           false"
+        )
+        fun partialMajor(version: String, match: Boolean) {
+
+            // [3.0.0 .. 5.0.0)
+            val range = "3 - 4"
 
             assertEquals(
                 match,
@@ -137,19 +289,55 @@ internal class BoundedRangeTest {
 
         @ParameterizedTest
         @CsvSource(
+            "20.1.99,               false",
+            "20.1.99+1,             false",
+            "20.1.99-RC.9,          false",
+            "20.1.99-RC.9+2,        false",
+
             "20.2.0,                true",
-            "20.1.42,               false",
-            "20.2.42,               true",
-            "20.2.42-beta.4,        false",
-            "20.3.0,                false",
-            "20.3.0+512,            false",
-            "20.3.0-3+420,          false",
-            "20.3.0-beta.2.nightly, false"
-        )
-        fun partialNoPatch(version: String, match: Boolean) {
+            "20.2.0+1,              true",
+            "20.2.0-RC.9,           false",
+            "20.2.0-RC.9+2,         false",
 
-            // [20.2.0 .. 20.3.0)
-            val range = "20.2"
+            "20.2.1,                true",
+            "20.2.1+1,              true",
+            "20.2.1-RC.9,           false",
+            "20.2.1-RC.9+2,         false",
+
+            "20.2.1,                true",
+            "20.2.1+1,              true",
+            "20.2.1-RC.9,           false",
+            "20.2.1-RC.9+2,         false",
+
+            "20.5.999,              true",
+            "20.5.999+1,            true",
+            "20.5.999-RC.9,         false",
+            "20.5.999-RC.9+2,       false",
+
+            "20.6.0,                false",
+            "20.6.0+1,              false",
+            "20.6.0-RC.9,           false",
+            "20.6.0-RC.9+2,         false",
+
+            "20.6.1,                false",
+            "20.6.1+1,              false",
+            "20.6.1-RC.9,           false",
+            "20.6.1-RC.9+2,         false",
+
+            "20.7.0,                false",
+            "20.7.0+1,              false",
+            "20.7.0-RC.9,           false",
+            "20.7.0-RC.9+2,         false",
+
+            "21.0.0,                false",
+            "21.0.0+1,              false",
+            "21.0.0-RC.9,           false",
+            "21.0.0-RC.9+2,         false"
+        )
+        fun partialMinor(version: String, match: Boolean) {
+
+            // [20.2.0 .. 20.6.0)
+            val range = "20.2-20.5"
 
             assertEquals(
                 match,
@@ -160,17 +348,53 @@ internal class BoundedRangeTest {
 
         @ParameterizedTest
         @CsvSource(
-            "2.0.0,         true",
-            "1.999.99,      false",
-            "2.17.15,       true",
-            "2.17.15-16,    false",
-            "2.17.15+42,    true",
-            "3.0.0-alpha.4, false"
+            "1.99.999,        false",
+            "1.99.999+42,     false",
+            "1.99.999-M9.2,   false",
+            "1.99.999-M9.2+3, false",
+
+            "2.0.0,           true",
+            "2.0.0+42,        true",
+            "2.0.0-M9.2,      false",
+            "2.0.0-M9.2+3,    false",
+
+            "2.0.3,           true",
+            "2.0.3+42,        true",
+            "2.0.3-M9.2,      false",
+            "2.0.3-M9.2+3,    false",
+
+            "2.7.3,           true",
+            "2.7.3+42,        true",
+            "2.7.3-M9.2,      false",
+            "2.7.3-M9.2+3,    false",
+
+            "4.2.0,           true",
+            "4.2.0+42,        true",
+            "4.2.0-M9.2,      false",
+            "4.2.0-M9.2+3,    false",
+
+            "4.9.99,          true",
+            "4.9.99+42,       true",
+            "4.9.99-M9.2,     false",
+            "4.9.99-M9.2+3,   false",
+
+            "5.0.0,           false",
+            "5.0.0+42,        false",
+            "5.0.0-M9.2,      false",
+            "5.0.0-M9.2+3,    false",
+
+            "5.0.1,           false",
+
+            "5.1.0,           false",
+
+            "5.1.1,           false",
+
+            "6.0.0,           false"
         )
         fun minorWildcard(version: String, match: Boolean) {
 
-            // [2.0.0 .. 3.0.0)
-            val range = "2.*"
+            // [2.0.0 .. 5.0.0)
+            val range = "2.* -4.*"
 
             assertEquals(
                 match,
@@ -181,20 +405,55 @@ internal class BoundedRangeTest {
 
         @ParameterizedTest
         @CsvSource(
-            "1.2.0+57,         true",
-            "1.1.99,           false",
-            "1.2.99,           true",
-            "1.2.99-beta.16,   false",
-            "1.2.99+12,        true",
-            "1.3.0,            false",
-            "1.3.0+3,          false",
-            "1.3.0-17,         false",
-            "1.3.0-alpha.4+25, false"
+            "0.0.0,                false",
+            "0.0.0+1,              false",
+            "0.0.0-RC.9,           false",
+            "0.0.0-RC.9+2,         false",
+
+            "0.2.99,               false",
+            "0.2.99+1,             false",
+            "0.2.99-RC.9,          false",
+            "0.2.99-RC.9+2,        false",
+
+            "0.3.0,                true",
+            "0.3.0+1,              true",
+            "0.3.0-RC.9,           false",
+            "0.3.0-RC.9+2,         false",
+
+            "0.3.1,                true",
+            "0.3.1+1,              true",
+            "0.3.1-RC.9,           false",
+            "0.3.1-RC.9+2,         false",
+
+            "0.5.9,                true",
+            "0.5.9+1,              true",
+            "0.5.9-RC.9,           false",
+            "0.5.9-RC.9+2,         false",
+
+            "0.6.0,                false",
+            "0.6.0+1,              false",
+            "0.6.0-RC.9,           false",
+            "0.6.0-RC.9+2,         false",
+
+            "0.6.1,                false",
+            "0.6.1+1,              false",
+            "0.6.1-RC.9,           false",
+            "0.6.1-RC.9+2,         false",
+
+            "0.7.0,                false",
+            "0.7.0+1,              false",
+            "0.7.0-RC.9,           false",
+            "0.7.0-RC.9+2,         false",
+
+            "1.0.0,                false",
+            "1.0.0+1,              false",
+            "1.0.0-RC.9,           false",
+            "1.0.0-RC.9+2,         false"
         )
         fun patchWildcard(version: String, match: Boolean) {
 
-            // [1.2.0 .. 1.3.0)
-            val range = "1.2.*"
+            // [0.3.0 .. 0.6.0)
+            val range = "0.3.x- 0.5.X"
 
             assertEquals(
                 match,

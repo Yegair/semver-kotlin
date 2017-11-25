@@ -44,6 +44,8 @@ object AnyVersion : Version() {
 
     override fun nextPatch() = AnyVersion
 
+    override fun next() = AnyVersion
+
     override fun nextBreakingChange() = AnyVersion
 
     override fun release() = AnyVersion

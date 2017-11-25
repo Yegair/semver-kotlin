@@ -112,6 +112,8 @@ internal class WildcardVersion(override val major: VersionNumber = NoVersionNumb
 
     override fun nextPatch() = this
 
+    override fun next() = this
+
     override fun nextBreakingChange() =
         when (major) {
             Zero -> when (minor) {
